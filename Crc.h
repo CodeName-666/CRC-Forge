@@ -1,76 +1,13 @@
-/**
- * \file
- *
- * \brief AUTOSAR Crc
- *
- * This file contains the implementation of the AUTOSAR
- * module Crc.
- *
- * \author Elektrobit Automotive GmbH, 91058 Erlangen, Germany
- *
- * Copyright 2005 - 2017 Elektrobit Automotive GmbH
- * All rights exclusively reserved for Elektrobit Automotive GmbH,
- * unless expressly agreed to otherwise.
- */
-#if (!defined CRC_H)
+
+#ifndef CRC_H
 #define CRC_H
 
-/* !LINKSTO CRC024,1 */
 
-/*==================[includes]===============================================*/
-
-#include <Std_Types.h>   /* AUTOSAR standard types */
-
-#include <Crc_Version.h> /* This modules' version declarations */
-
-/* !LINKSTO CRC022,1 */
-#include <Crc_Cfg.h>     /* Generated module configuration */
-
-/*==================[macros]=================================================*/
-
-#if (defined CRC_GET_VERSION_INFO_API_ID)
-#error CRC_GET_VERSION_INFO_API_ID already defined
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "arduino.h"
+#else
+	#include "WProgram.h"
 #endif
-/** \brief Service ID for Crc_GetVersionInfo. */
-#define CRC_GET_VERSION_INFO_API_ID           0x04U
-
-#if (defined CRC_E_PARAM_DATA)
-#error CRC_E_PARAM_DATA already defined
-#endif
-/** \brief DET Error: Invalid function parameter. */
-#define CRC_E_PARAM_DATA        1U
-
-#if (defined CRC_INSTANCE_ID)
-#error CRC_INSTANCE_ID already defined
-#endif
-/** \brief Module's instance ID. */
-#define CRC_INSTANCE_ID              0U
-
-/*==================[type definitions]=======================================*/
-
-/*==================[external function declarations]=========================*/
-
-#define CRC_START_SEC_CODE
-
-/* !LINKSTO CRC022,1 */
-#include <MemMap.h>
-
-/** \brief Return the modules version information
- **
- ** This function provides the information to module vendor ID, module ID and
- ** software version major.minor.patch
- **
- ** 
- ** \param[out] VersionInfoPtr Pointer to struct to be filled with the version
- ** information
- **
- ** \ServiceID{4}
- ** \Reentrancy{Reentrant}
- ** \Synchronicity{Synchronous} */
-extern FUNC(void, CRC_CODE) Crc_GetVersionInfo
-(
-  P2VAR(Std_VersionInfoType, AUTOMATIC, CRC_APPL_DATA) VersionInfoPtr
-);
 
 
 #if (CRC_8_ENABLED == STD_ON)

@@ -1,125 +1,24 @@
-/**
- * \file
- *
- * \brief AUTOSAR Crc
- *
- * This file contains the implementation of the AUTOSAR
- * module Crc.
- *
- * \author Elektrobit Automotive GmbH, 91058 Erlangen, Germany
- *
- * Copyright 2005 - 2017 Elektrobit Automotive GmbH
- * All rights exclusively reserved for Elektrobit Automotive GmbH,
- * unless expressly agreed to otherwise.
- */
 
-/*  MISRA-C:2004 Deviation List
- *
- *  MISRA-1) Deviated Rule: 17.4 (required)
- *    "Array indexing shall be the only allowed form of pointer arithmetic."
- *
- *    Reason: runtime optimization
- */
 
-/* !LINKSTO CRC024,1 */
 
-/*==================[inclusions]============================================*/
 
-#include <Crc_Trace.h>
-#include <Std_Types.h>         /* AUTOSAR standard types */
+#include "Crc.h"
 
-/* !LINKSTO CRC022,1 */
-#include <Crc.h>               /* Module public API */
-
-#if ( CRC_DEV_ERROR_DETECT == STD_ON )
-/* !LINKSTO EB_CRC_DetHeaderFile,1 */
-#include <Det.h>               /* API of module Det. */
-#endif
-/*==================[macros]================================================*/
-
-/* !LINKSTO CRC005,1 */
-/*------------------[AUTOSAR vendor identification check]-------------------*/
-
-#if (!defined CRC_VENDOR_ID) /* configuration check */
-#error CRC_VENDOR_ID must be defined
-#endif
-
-#if (CRC_VENDOR_ID != 1U) /* vendor check */
-#error CRC_VENDOR_ID has wrong vendor id
-#endif
-
-/*------------------[AUTOSAR release version identification check]----------*/
-
-#if (!defined CRC_AR_RELEASE_MAJOR_VERSION) /* configuration check */
-#error CRC_AR_RELEASE_MAJOR_VERSION must be defined
-#endif
-
-/* major version check */
-#if (CRC_AR_RELEASE_MAJOR_VERSION != 4U)
-#error CRC_AR_RELEASE_MAJOR_VERSION wrong (!= 4U)
-#endif
-
-#if (!defined CRC_AR_RELEASE_MINOR_VERSION) /* configuration check */
-#error CRC_AR_RELEASE_MINOR_VERSION must be defined
-#endif
-
-/* minor version check */
-#if (CRC_AR_RELEASE_MINOR_VERSION != 0U )
-#error CRC_AR_RELEASE_MINOR_VERSION wrong (!= 0U)
-#endif
-
-#if (!defined CRC_AR_RELEASE_REVISION_VERSION) /* configuration check */
-#error CRC_AR_RELEASE_REVISION_VERSION must be defined
-#endif
-
-/* revision version check */
-#if (CRC_AR_RELEASE_REVISION_VERSION != 3U )
-#error CRC_AR_RELEASE_REVISION_VERSION wrong (!= 3U)
-#endif
-
-/*------------------[AUTOSAR module version identification check]-----------*/
-
-#if (!defined CRC_SW_MAJOR_VERSION) /* configuration check */
-#error CRC_SW_MAJOR_VERSION must be defined
-#endif
-
-/* major version check */
-#if (CRC_SW_MAJOR_VERSION != 6U)
-#error CRC_SW_MAJOR_VERSION wrong (!= 6U)
-#endif
-
-#if (!defined CRC_SW_MINOR_VERSION) /* configuration check */
-#error CRC_SW_MINOR_VERSION must be defined
-#endif
-
-/* minor version check */
-#if (CRC_SW_MINOR_VERSION < 10U)
-#error CRC_SW_MINOR_VERSION wrong (< 10U)
-#endif
-
-#if (!defined CRC_SW_PATCH_VERSION) /* configuration check */
-#error CRC_SW_PATCH_VERSION must be defined
-#endif
-
-/* patch version check */
-#if (CRC_SW_PATCH_VERSION < 1U)
-#error CRC_SW_PATCH_VERSION wrong (< 1U)
-#endif
 
 /*------------------[CRC implementation macros]-----------------------------*/
 
-/** \brief SAE J1850 CRC8 polynomial
+/** @brief SAE J1850 CRC8 polynomial
  *
  * According to AUTOSAR R4.0 CRC SWS CRC030 */
 #define CRC_POLYNOMIAL8     0x1DU
 
-/** \brief CRC8 0x2F polynomial */
+/** @brief CRC8 0x2F polynomial */
 #define CRC_POLYNOMIAL8H2F  0x2FU
 
-/** \brief definition of key width CRC16 polynomial [CRC002] */
+/** @brief definition of key width CRC16 polynomial [CRC002] */
 #define CRC_POLYNOMIAL16    0x1021U
 
-/** \brief definition of key width CRC32 polynomial [CRC002]
+/** @brief definition of key width CRC32 polynomial [CRC002]
  **
  ** The CRC32 routine is based on IEEE-802.3 CRC32 Ethernet standard.
  ** In there, the polynomial 0x04C11DB7 is specified to be used.
@@ -136,7 +35,7 @@
 
 #if (CRC_DEV_ERROR_DETECT == STD_ON)
 
-/** \brief Macro for reporting an error to Det
+/** @brief Macro for reporting an error to Det
  **
  ** \param[in] CRC_SID Service ID of the API function
  ** \param[in] ERROR_CODE Error code reported to Det module
@@ -149,16 +48,16 @@
 
 /*------------------[CRC initial value]-------------------------------------*/
 
-/** \brief Definition of the initial value of the SAE J1850 CRC8 */
+/** @brief Definition of the initial value of the SAE J1850 CRC8 */
 #define CRC_INITIAL_VALUE8    0xFFU
 
-/** \brief Definition of the initial value of the CRC8 on polynom 0x2F */
+/** @brief Definition of the initial value of the CRC8 on polynom 0x2F */
 #define CRC_INITIAL_VALUE8H2F 0xFFU
 
-/** \brief Definition of the initial value of crc16 */
+/** @brief Definition of the initial value of crc16 */
 #define CRC_INITIAL_VALUE16   0xFFFFU
 
-/** \brief Definition of the initial value of crc32 */
+/** @brief Definition of the initial value of crc32 */
 #define CRC_INITIAL_VALUE32   0xFFFFFFFFU
 
 /*==================[type definitions]======================================*/
@@ -176,10 +75,10 @@
 #if (CRC_8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 #define CRC_START_SEC_CONST_8
-#include <MemMap.h>
+
 
 /* Table of pre-computed values for CRC8 */
-STATIC CONST(uint8, CRC_CONST) Crc_Table8[CRC_8_TABLE_SIZE] =
+static const Crc_Table8[CRC_8_TABLE_SIZE] =
 {
   0x00U, 0x1DU, 0x3AU, 0x27U, 0x74U, 0x69U, 0x4EU, 0x53U, 0xE8U, 0xF5U, 0xD2U,
   0xCFU, 0x9CU, 0x81U, 0xA6U, 0xBBU,
@@ -209,18 +108,16 @@ STATIC CONST(uint8, CRC_CONST) Crc_Table8[CRC_8_TABLE_SIZE] =
 #endif
 };
 
-#define CRC_STOP_SEC_CONST_8
-#include <MemMap.h>
+
 
 #endif  /* CRC_8_TABLE_SIZE > 0U */
 
 #if (CRC_8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
 
-#define CRC_START_SEC_CONST_8
-#include <MemMap.h>
+
 
 /* Table of pre-computed values for CRC8H2F */
-STATIC CONST(uint8, CRC_CONST) Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
+static const Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
 {
   0x00U, 0x2FU, 0x5EU, 0x71U, 0xBCU, 0x93U, 0xE2U, 0xCDU, 0x57U, 0x78U, 0x09U,
   0x26U, 0xEBU, 0xC4U, 0xB5U, 0x9AU,
@@ -250,18 +147,14 @@ STATIC CONST(uint8, CRC_CONST) Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
 #endif
 };
 
-#define CRC_STOP_SEC_CONST_8
-#include <MemMap.h>
+
 
 #endif  /* CRC_8H2F_TABLE_SIZE > 0U */
 
 #if (CRC_16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
-#define CRC_START_SEC_CONST_16
-#include <MemMap.h>
-
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-STATIC CONST(uint16, CRC_CONST) Crc_Table16[CRC_16_TABLE_SIZE] =
+static const Crc_Table16[CRC_16_TABLE_SIZE] =
 {
   0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
   0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
@@ -299,19 +192,14 @@ STATIC CONST(uint16, CRC_CONST) Crc_Table16[CRC_16_TABLE_SIZE] =
 #endif
 };
 
-#define CRC_STOP_SEC_CONST_16
-#include <MemMap.h>
-
 #endif /* CRC_16_TABLE_SIZE > 0U */
 
 #if (CRC_32_TABLE_SIZE > 0U) /* CRC32 generation via table */
 
-#define CRC_START_SEC_CONST_32
-#include <MemMap.h>
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-STATIC CONST(uint32, CRC_CONST) Crc_Table32[CRC_32_TABLE_SIZE] =
+static const Crc_Table32[CRC_32_TABLE_SIZE] =
 {
 #if (CRC_32_TABLE_SIZE == 16U)
   0x00000000U, 0x1DB71064U, 0x3B6E20C8U, 0x26D930ACU, 0x76DC4190U,
@@ -374,9 +262,6 @@ STATIC CONST(uint32, CRC_CONST) Crc_Table32[CRC_32_TABLE_SIZE] =
 #endif
 };
 
-#define CRC_STOP_SEC_CONST_32
-#include <MemMap.h>
-
 #endif /* CRC_32_TABLE_SIZE > 0U */
 
 /*==================[external data]=========================================*/
@@ -385,38 +270,10 @@ STATIC CONST(uint32, CRC_CONST) Crc_Table32[CRC_32_TABLE_SIZE] =
 
 /*==================[external function definitions]=========================*/
 
-#define CRC_START_SEC_CODE
-#include <MemMap.h>
-
-
-
-FUNC(void, CRC_CODE) Crc_GetVersionInfo
-(
-  P2VAR(Std_VersionInfoType, AUTOMATIC, CRC_APPL_DATA) VersionInfoPtr
-)
-{
-  DBG_CRC_GETVERSIONINFO_ENTRY(VersionInfoPtr);
-#if ( CRC_DEV_ERROR_DETECT == STD_ON )
-  if(NULL_PTR == VersionInfoPtr)
-  {
-    CRC_DET_REPORT_ERROR( CRC_GET_VERSION_INFO_API_ID, CRC_E_PARAM_DATA );
-  }
-  else
-#endif
-  {
-    VersionInfoPtr->vendorID         = CRC_VENDOR_ID;
-    VersionInfoPtr->moduleID         = CRC_MODULE_ID;
-    VersionInfoPtr->sw_major_version = CRC_SW_MAJOR_VERSION;
-    VersionInfoPtr->sw_minor_version = CRC_SW_MINOR_VERSION;
-    VersionInfoPtr->sw_patch_version = CRC_SW_PATCH_VERSION;
-  }
-  DBG_CRC_GETVERSIONINFO_EXIT(VersionInfoPtr);
-}
-
 
 #if (CRC_8_ENABLED == STD_ON)
 
-FUNC(uint8, CRC_CODE) Crc_CalculateCRC8
+uint8_t Crc_CalculateCRC8
 (
   P2CONST(uint8, AUTOMATIC, CRC_APPL_DATA) Crc_DataPtr,
   uint32                                   Crc_Length,
