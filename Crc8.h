@@ -14,7 +14,6 @@
    #include "WProgram.h"
 #endif
 
-#include "CrcCommon.h"
 
 
 /** @brief Definition of the initial value of the SAE J1850 CRC8 */
