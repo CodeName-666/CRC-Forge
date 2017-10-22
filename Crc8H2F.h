@@ -23,6 +23,13 @@
 /** @brief CRC8 0x2F polynomial */
 #define CRC8H2F_POLYNOMIAL               0x2FU
 
+/**
+ * \brief Number of elements in CRC8H2F lookup table
+ *
+ * If size is 0 table based calculation is deactivated. */
+#define CRC_8H2F_TABLE_SIZE   0U
+
+
 
 class Crc8H2F
 {

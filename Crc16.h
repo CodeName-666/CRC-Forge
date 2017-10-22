@@ -22,6 +22,15 @@
 /** @brief definition of key width CRC16 polynomial [CRC002] */
 #define CRC16_POLYNOMIAL    0x1021U
 
+/**
+ * \brief Number of elements in CRC16 lookup table
+ *
+ * If size is 0 table based calculation is deactivated. */
+#define CRC_16_TABLE_SIZE     256U
+
+
+
+
 class Crc16
 {
    public:

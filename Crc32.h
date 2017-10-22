@@ -37,6 +37,15 @@
 #define CRC32_POLYNOMIAL    0xEDB88320U
 
 
+/**
+ * \brief Number of elements in CRC32 lookup table
+ *
+ * If size is 0 table based calculation is deactivated. */
+#define CRC_32_TABLE_SIZE     256U
+
+
+
+
 
 class Crc32
 {
