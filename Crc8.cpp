@@ -7,10 +7,10 @@
 
 #include "Crc8.h"
 
-
-
 #if (CRC_8_TABLE_SIZE > 0U) /* CRC8 generation via table */
-static const Crc_Table8[CRC_8_TABLE_SIZE];
+
+/* Table of pre-computed values for CRC8 */
+extern const uint8_t Crc_Table8[CRC_8_TABLE_SIZE];
 #endif
 
 

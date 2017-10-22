@@ -14,6 +14,8 @@
    #include "WProgram.h"
 #endif
 
+#include "CrcCommon.h"
+
 
 /** @brief Definition of the initial value of the CRC8 on polynom 0x2F */
 #define CRC8H2F_INITIAL_VALUE        0xFFU

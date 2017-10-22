@@ -7,23 +7,11 @@
 
 #include "CrcCommon.h"
 
-CrcCommon::CrcCommon()
-{
-   // TODO Auto-generated constructor stub
-
-}
-
-CrcCommon::~CrcCommon()
-{
-   // TODO Auto-generated destructor stub
-}
-
-
 
 #if (CRC_8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-static const Crc_Table8[CRC_8_TABLE_SIZE] =
+const uint8_t Crc_Table8[CRC_8_TABLE_SIZE] =
 {
    0x00U, 0x1DU, 0x3AU, 0x27U, 0x74U, 0x69U, 0x4EU, 0x53U, 0xE8U, 0xF5U, 0xD2U,
    0xCFU, 0x9CU, 0x81U, 0xA6U, 0xBBU,
@@ -58,7 +46,7 @@ static const Crc_Table8[CRC_8_TABLE_SIZE] =
 #if (CRC_8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
 
 /* Table of pre-computed values for CRC8H2F */
-static const Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
+const uint8_t Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
 {
    0x00U, 0x2FU, 0x5EU, 0x71U, 0xBCU, 0x93U, 0xE2U, 0xCDU, 0x57U, 0x78U, 0x09U,
    0x26U, 0xEBU, 0xC4U, 0xB5U, 0x9AU,
@@ -94,7 +82,7 @@ static const Crc_Table8H2F[CRC_8H2F_TABLE_SIZE] =
 #if (CRC_16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-static const Crc_Table16[CRC_16_TABLE_SIZE] =
+const uint16_t Crc_Table16[CRC_16_TABLE_SIZE] =
 {
    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
@@ -138,7 +126,7 @@ static const Crc_Table16[CRC_16_TABLE_SIZE] =
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-static const Crc_Table32[CRC_32_TABLE_SIZE] =
+const uint32_t Crc_Table32[CRC_32_TABLE_SIZE] =
 {
 #if (CRC_32_TABLE_SIZE == 16U)
    0x00000000U, 0x1DB71064U, 0x3B6E20C8U, 0x26D930ACU, 0x76DC4190U,
@@ -202,3 +190,16 @@ static const Crc_Table32[CRC_32_TABLE_SIZE] =
 };
 
 #endif /* CRC_32_TABLE_SIZE > 0U */
+
+
+CrcCommon::CrcCommon()
+{
+   // TODO Auto-generated constructor stub
+
+}
+
+CrcCommon::~CrcCommon()
+{
+   // TODO Auto-generated destructor stub
+}
+

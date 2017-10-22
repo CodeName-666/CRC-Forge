@@ -13,6 +13,8 @@
 #else
    #include "WProgram.h"
 #endif
+#include "CrcCommon.h"
+
 
 /** @brief Definition of the initial value of crc16 */
 #define CRC16_INITIAL_VALUE   0xFFFFU

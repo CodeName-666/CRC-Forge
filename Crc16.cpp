@@ -7,11 +7,10 @@
 
 #include "Crc16.h"
 
-
 #if (CRC_16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-static const Crc_Table16[CRC_16_TABLE_SIZE];
+extern const uint16_t Crc_Table16[CRC_16_TABLE_SIZE];
 #endif
 
 

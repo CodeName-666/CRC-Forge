@@ -7,13 +7,13 @@
 
 #include "Crc32.h"
 
-
 #if (CRC_32_TABLE_SIZE > 0U) /* CRC32 generation via table */
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-static const Crc_Table32[CRC_32_TABLE_SIZE];
+extern const uint32_t Crc_Table32[CRC_32_TABLE_SIZE];
 #endif
+
 
 Crc32::Crc32()
 {

@@ -8,10 +8,11 @@
 #include "Crc8H2F.h"
 
 
+
 #if (CRC_8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
 
 /* Table of pre-computed values for CRC8H2F */
-static const Crc_Table8H2F[CRC_8H2F_TABLE_SIZE]
+extern const uint8_t Crc_Table8H2F[CRC_8H2F_TABLE_SIZE]
 #endif
 
 

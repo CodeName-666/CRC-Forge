@@ -14,6 +14,8 @@
    #include "WProgram.h"
 #endif
 
+#include "CrcCommon.h"
+
 
 /** @brief Definition of the initial value of crc32 */
 #define CRC32_INITIAL_VALUE   0xFFFFFFFFU
