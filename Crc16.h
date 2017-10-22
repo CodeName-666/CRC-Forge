@@ -1,12 +1,12 @@
 /*
- * Crc32.h
+ * Crc16.h
  *
  *  Created on: 22.10.2017
  *      Author: AP02
  */
 
-#ifndef _CRC32_H_
-#define _CRC32_H_
+#ifndef _CRC16_H_
+#define _CRC16_H_
 
 #if defined(ARDUINO) && ARDUINO >= 100
    #include "arduino.h"
@@ -15,17 +15,17 @@
 #endif
 
 
-/** \brief Number of elements in CRC32 lookup table
+
+/** \brief Number of elements in CRC16 lookup table
  *
  * If size is 0 table based calculation is deactivated. */
-#define CRC_32_TABLE_SIZE     256U
+#define CRC_16_TABLE_SIZE     256U
 
-
-class Crc32
+class Ccr16
 {
    public:
-      Crc32();
-      virtual ~Crc32();
+      Ccr16();
+      virtual ~Ccr16();
 };
 
-#endif /* SOUCRE_CRC_CRC32_H_ */
+#endif /* SOUCRE_CRC_CCR16_H_ */

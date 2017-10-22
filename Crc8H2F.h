@@ -8,6 +8,14 @@
 #ifndef _CRC8H2F_H_
 #define _CRC8H2F_H_
 
+#if defined(ARDUINO) && ARDUINO >= 100
+   #include "arduino.h"
+#else
+   #include "WProgram.h"
+#endif
+
+
+
 class Crc8H2F
 {
    public:
