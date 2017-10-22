@@ -28,7 +28,7 @@ Crc8H2F::~Crc8H2F()
 }
 
 
-#if (CRC_8H2F_ENABLED == STD_ON)
+#if (CRC8H2F_ENABLED == 1U)
 
 uint8_t Crc8H2F::calculate(uint8_t* Crc_DataPtr,
                            uint32_t Crc_Length,

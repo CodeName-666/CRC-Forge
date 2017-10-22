@@ -27,7 +27,7 @@ Crc32::~Crc32()
 }
 
 
-#if (CRC_32_ENABLED == STD_ON)
+#if (CRC32_ENABLED == 1U)
 
 uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
                           uint32_t Crc_Length,

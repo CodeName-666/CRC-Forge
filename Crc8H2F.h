@@ -30,7 +30,12 @@
 #define CRC8H2F_TABLE_SIZE   256U
 #endif
 
+#if !defined(CRC8H2F_ENABLED)
+#define CRC8H2F_ENABLED                   1U
+#endif
 
+
+#if (CRC8H2F_ENABLED == 1U)
 class Crc8H2F
 {
    public:
@@ -42,4 +47,5 @@ class Crc8H2F
                                boolean Crc_IsFirstCall);
 };
 
+#endif
 #endif /* SOUCRE_CRC_CRC8H2F_H_ */

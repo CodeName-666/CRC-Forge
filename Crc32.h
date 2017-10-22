@@ -46,6 +46,11 @@
 #define CRC32_TABLE_SIZE     256U
 #endif
 
+#if !defined(CRC32_ENABLED)
+#define CRC32_ENABLED               1U
+#endif
+
+#if (CRC32_ENABLED == 1U)
 
 class Crc32
 {
@@ -58,4 +63,5 @@ class Crc32
                                 boolean Crc_IsFirstCall);
 };
 
+#endif
 #endif /* SOUCRE_CRC_CRC32_H_ */

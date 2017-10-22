@@ -26,7 +26,7 @@ Crc8::~Crc8()
 }
 
 
-#if (CRC_8_ENABLED == STD_ON)
+#if (CRC8_ENABLED == 1U)
 
 uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
                         uint8 Crc_StartValue8, boolean Crc_IsFirstCall)

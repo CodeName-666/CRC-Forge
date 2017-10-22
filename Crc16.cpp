@@ -25,7 +25,7 @@ Crc16::~Crc16()
    // TODO Auto-generated destructor stub
 }
 
-#if (CRC_16_ENABLED == STD_ON)
+#if (CRC16_ENABLED == 1U)
 
 uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
                         uint32_t Crc_Length,

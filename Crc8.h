@@ -33,6 +33,13 @@
 #define CRC8_TABLE_SIZE      256U
 #endif
 
+#if !defined(CRC8_ENABLED)
+#define CRC8_ENABLED                   1U
+#endif
+
+
+#if (CRC8_ENABLED == 1U)
+
 class Crc8
 {
    public:
@@ -43,5 +50,7 @@ class Crc8
                                uint8_t Crc_StartValue8,
                                boolean Crc_IsFirstCall);
 };
+#endif
+
 
 #endif /* SOUCRE_CRC_CRC8_H_ */

@@ -26,7 +26,7 @@
  */
 #define CRC16_POLYNOMIAL    0x1021U
 
-#if !defined(CRC_16_TABLE_SIZE)
+#if !defined(CRC16_TABLE_SIZE)
 /**
  * @brief Number of elements in CRC16 lookup table
  *
@@ -36,6 +36,11 @@
 #endif
 
 
+#if !defined(CRC16_ENABLED)
+#define CRC16_ENABLED           1
+#endif
+
+#if (CRC16_ENABLED == 1U)
 
 class Crc16
 {
@@ -48,4 +53,5 @@ class Crc16
                                 boolean Crc_IsFirstCall);
 };
 
+#endif
 #endif /* _CRC16_H_ */
