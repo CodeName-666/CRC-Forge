@@ -15,17 +15,25 @@
 #endif
 
 
+/** @brief Definition of the initial value of the SAE J1850 CRC8 */
+#define CRC8_INITIAL_VALUE        0xFFU
 
-/** \brief Number of elements in CRC8 lookup table
+/** @brief SAE J1850 CRC8 polynomial
  *
- * If size is 0 table based calculation is deactivated. */
-#define CRC_8_TABLE_SIZE      256U
+ * According to AUTOSAR R4.0 CRC SWS CRC030
+ */
+#define CRC8_POLYNOMIAL          0x1DU
+
 
 class Crc8
 {
    public:
       Crc8();
       virtual ~Crc8();
+      uint8_t calculate(uint8_t* Crc_DataPtr,
+                        uint32_t Crc_Length,
+                        uint8_t Crc_StartValue8,
+                        boolean Crc_IsFirstCall);
 };
 
 #endif /* SOUCRE_CRC_CRC8_H_ */
