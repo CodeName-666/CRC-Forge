@@ -7,11 +7,11 @@
 
 #include "Crc32.h"
 
-#if (CRC_32_TABLE_SIZE > 0U) /* CRC32 generation via table */
+#if (CRC32_TABLE_SIZE > 0U) /* CRC32 generation via table */
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-extern const uint32_t Crc_Table32[CRC_32_TABLE_SIZE];
+extern const uint32_t Crc_Table32[CRC32_TABLE_SIZE];
 #endif
 
 
@@ -30,13 +30,14 @@ Crc32::~Crc32()
 #if (CRC_32_ENABLED == STD_ON)
 
 uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
-                        uint32_t Crc_Length,
-                        uint32_t Crc_StartValue32,
-                        boolean Crc_IsFirstCall
-                       )
+                          uint32_t Crc_Length,
+                          uint32_t Crc_StartValue32,
+                          boolean Crc_IsFirstCall
+                         )
 {
-
+#if (CRC32_TABLE_SIZE == 0U)
    uint8_t i; /* loop counter */
+#endif
 
    if (true == Crc_IsFirstCall)
    {
@@ -54,7 +55,7 @@ uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
    /* Process all data byte-wise */
    while (Crc_Length != 0U)
    {
-#if (CRC_32_TABLE_SIZE == 16U) /* CRC32 generation via small table */
+#if (CRC32_TABLE_SIZE == 16U) /* CRC32 generation via small table */
 
       /* Process low nibble of actual data */
       Crc_StartValue32
@@ -67,7 +68,7 @@ uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
       0x0FU & (Crc_StartValue32 ^ ((uint32)*Crc_DataPtr >> 4U))]
       ^ (Crc_StartValue32 >> 4U);
 
-#elif (CRC_32_TABLE_SIZE == 256U) /* CRC32 generation via large table */
+#elif (CRC32_TABLE_SIZE == 256U) /* CRC32 generation via large table */
 
       /* Process one byte of data */
       Crc_StartValue32
@@ -118,13 +119,13 @@ uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
 
 
 
-#if (CRC_32_TABLE_SIZE > 0U) /* CRC32 generation via table */
+#if (CRC32_TABLE_SIZE > 0U) /* CRC32 generation via table */
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-const uint32_t Crc_Table32[CRC_32_TABLE_SIZE] =
+const uint32_t Crc_Table32[CRC32_TABLE_SIZE] =
 {
-#if (CRC_32_TABLE_SIZE == 16U)
+#if (CRC32_TABLE_SIZE == 16U)
    0x00000000U, 0x1DB71064U, 0x3B6E20C8U, 0x26D930ACU, 0x76DC4190U,
    0x6B6B51F4U, 0x4DB26158U, 0x5005713CU, 0xEDB88320U, 0xF00F9344U,
    0xD6D6A3E8U, 0xCB61B38CU, 0x9B64C2B0U, 0x86D3D2D4U, 0xA00AE278U,

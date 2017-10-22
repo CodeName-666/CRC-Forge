@@ -25,22 +25,23 @@
  */
 #define CRC8_POLYNOMIAL          0x1DU
 
+#if !defined(CRC_8_TABLE_SIZE)
 /**
  *  \brief Number of elements in CRC8 lookup table
  *
  * If size is 0 table based calculation is deactivated. */
-#define CRC_8_TABLE_SIZE      256U
-
+#define CRC8_TABLE_SIZE      256U
+#endif
 
 class Crc8
 {
    public:
       Crc8();
       virtual ~Crc8();
-      uint8_t calculate(uint8_t* Crc_DataPtr,
-                        uint32_t Crc_Length,
-                        uint8_t Crc_StartValue8,
-                        boolean Crc_IsFirstCall);
+      static uint8_t calculate(uint8_t* Crc_DataPtr,
+                               uint32_t Crc_Length,
+                               uint8_t Crc_StartValue8,
+                               boolean Crc_IsFirstCall);
 };
 
 #endif /* SOUCRE_CRC_CRC8_H_ */

@@ -16,10 +16,13 @@
 
 
 
-/** @brief Definition of the initial value of crc32 */
+/**
+ * @brief Definition of the initial value of crc32
+ */
 #define CRC32_INITIAL_VALUE   0xFFFFFFFFU
 
-/** @brief definition of key width CRC32 polynomial [CRC002]
+/**
+ * @brief definition of key width CRC32 polynomial [CRC002]
  *
  *The CRC32 routine is based on IEEE-802.3 CRC32 Ethernet standard.
  *In there, the polynomial 0x04C11DB7 is specified to be used.
@@ -35,15 +38,13 @@
  */
 #define CRC32_POLYNOMIAL    0xEDB88320U
 
-
+#if !defined(CRC_32_TABLE_SIZE)
 /**
- * \brief Number of elements in CRC32 lookup table
+ * @brief Number of elements in CRC32 lookup table
  *
  * If size is 0 table based calculation is deactivated. */
-#define CRC_32_TABLE_SIZE     256U
-
-
-
+#define CRC32_TABLE_SIZE     256U
+#endif
 
 
 class Crc32
@@ -51,10 +52,10 @@ class Crc32
    public:
       Crc32();
       virtual ~Crc32();
-      uint32_t calculate(uint8_t* Crc_DataPtr,
-                         uint32_t Crc_Length,
-                         uint32_t Crc_StartValue32,
-                         boolean Crc_IsFirstCall);
+      static uint32_t calculate(uint8_t* Crc_DataPtr,
+                                uint32_t Crc_Length,
+                                uint32_t Crc_StartValue32,
+                                boolean Crc_IsFirstCall);
 };
 
 #endif /* SOUCRE_CRC_CRC32_H_ */

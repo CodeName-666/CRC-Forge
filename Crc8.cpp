@@ -7,10 +7,10 @@
 
 #include "Crc8.h"
 
-#if (CRC_8_TABLE_SIZE > 0U) /* CRC8 generation via table */
+#if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-const uint8_t Crc_Table8[CRC_8_TABLE_SIZE];
+extern const uint8_t Crc_Table8[CRC8_TABLE_SIZE];
 #endif
 
 
@@ -29,7 +29,12 @@ Crc8::~Crc8()
 #if (CRC_8_ENABLED == STD_ON)
 
 uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
-                        uint8 Crc_StartValue8, boolean Crc_IsFirstCall) {
+                        uint8 Crc_StartValue8, boolean Crc_IsFirstCall)
+{
+
+#if (CRC8_TABLE_SIZE == 0U)
+   uint8_t i; /* loop counter */
+#endif
 
    if (true == Crc_IsFirstCall) {
       Crc_StartValue8 = CRC8_INITIAL_VALUE;
@@ -40,7 +45,7 @@ uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
 
    /* Process all data (byte wise) */
    while (Crc_Length != 0U) {
-#if (CRC_8_TABLE_SIZE == 16U) /* CRC8 generation with small table */
+#if (CRC8_TABLE_SIZE == 16U) /* CRC8 generation with small table */
 
       /* Process high nibble of data byte */
       Crc_StartValue8
@@ -54,13 +59,11 @@ uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
       ((uint8)(Crc_StartValue8 >> 4U)) ^ (*Crc_DataPtr & 0x0FU)]
       ^ ((uint8)(Crc_StartValue8 << 4U));
 
-#elif (CRC_8_TABLE_SIZE == 256U) /* CRC8 generation with large table */
+#elif (CRC8_TABLE_SIZE == 256U) /* CRC8 generation with large table */
 
       Crc_StartValue8 = Crc_Table8[Crc_StartValue8 ^ *Crc_DataPtr];
 
 #else /* CRC8 generation at runtime */
-
-      uint8_t i; /* loop counter */
 
       Crc_StartValue8 ^= *Crc_DataPtr;
 
@@ -98,14 +101,14 @@ uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
 
 
 
-#if (CRC_8_TABLE_SIZE > 0U) /* CRC8 generation via table */
+#if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-const uint8_t Crc_Table8[CRC_8_TABLE_SIZE] =
+const uint8_t Crc_Table8[CRC8_TABLE_SIZE] =
 {
    0x00U, 0x1DU, 0x3AU, 0x27U, 0x74U, 0x69U, 0x4EU, 0x53U, 0xE8U, 0xF5U, 0xD2U,
    0xCFU, 0x9CU, 0x81U, 0xA6U, 0xBBU,
-#if (CRC_8_TABLE_SIZE == 256U)
+#if (CRC8_TABLE_SIZE == 256U)
    0xCDU, 0xD0U, 0xF7U, 0xEAU, 0xB9U, 0xA4U, 0x83U, 0x9EU, 0x25U, 0x38U, 0x1FU,
    0x02U, 0x51U, 0x4CU, 0x6BU, 0x76U, 0x87U, 0x9AU, 0xBDU, 0xA0U, 0xF3U, 0xEEU,
    0xC9U, 0xD4U, 0x6FU, 0x72U, 0x55U, 0x48U, 0x1BU, 0x06U, 0x21U, 0x3CU, 0x4AU,
@@ -130,5 +133,5 @@ const uint8_t Crc_Table8[CRC_8_TABLE_SIZE] =
    0x2CU, 0x97U, 0x8AU, 0xADU, 0xB0U, 0xE3U, 0xFEU, 0xD9U, 0xC4U
 #endif
 };
-#endif  /* CRC_8_TABLE_SIZE > 0U */
+#endif  /* CRC8_TABLE_SIZE > 0U */
 

@@ -7,10 +7,10 @@
 
 #include "Crc16.h"
 
-#if (CRC_16_TABLE_SIZE > 0U) /* CRC16 generation via table */
+#if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-extern const uint16_t Crc_Table16[CRC_16_TABLE_SIZE];
+extern const uint16_t Crc_Table16[CRC16_TABLE_SIZE];
 #endif
 
 
@@ -33,8 +33,9 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
                         boolean Crc_IsFirstCall
                        )
 {
-
+#if (CRC16_TABLE_SIZE == 0U)
    uint8_t i; /* loop counter */
+#endif
 
    if (true == Crc_IsFirstCall)
    {
@@ -44,7 +45,7 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
    /* Process all data (byte wise) */
    while (Crc_Length != 0U)
    {
-#if (CRC_16_TABLE_SIZE == 16U) /* CRC16 generation with small table */
+#if (CRC16_TABLE_SIZE == 16U) /* CRC16 generation with small table */
 
       /* Process high nibble of actual data */
       Crc_StartValue16
@@ -58,7 +59,7 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
       ((uint8)(Crc_StartValue16 >> 12U)) ^ (*Crc_DataPtr & 0x0FU)]
       ^ ((uint16)(Crc_StartValue16 << 4U));
 
-#elif (CRC_16_TABLE_SIZE == 256U) /* CRC16 generation with large table */
+#elif (CRC16_TABLE_SIZE == 256U) /* CRC16 generation with large table */
 
       /* Process one byte of data */
       Crc_StartValue16
@@ -102,14 +103,14 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
 #endif
 
 
-#if (CRC_16_TABLE_SIZE > 0U) /* CRC16 generation via table */
+#if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-const uint16_t Crc_Table16[CRC_16_TABLE_SIZE] =
+const uint16_t Crc_Table16[CRC16_TABLE_SIZE] =
 {
    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
-#if (CRC_16_TABLE_SIZE == 256U)
+#if (CRC16_TABLE_SIZE == 256U)
    0x1231U, 0x0210U, 0x3273U, 0x2252U, 0x52B5U, 0x4294U, 0x72F7U, 0x62D6U,
    0x9339U, 0x8318U, 0xB37BU, 0xA35AU, 0xD3BDU, 0xC39CU, 0xF3FFU, 0xE3DEU,
    0x2462U, 0x3443U, 0x0420U, 0x1401U, 0x64E6U, 0x74C7U, 0x44A4U, 0x5485U,
@@ -143,5 +144,5 @@ const uint16_t Crc_Table16[CRC_16_TABLE_SIZE] =
 #endif
 };
 
-#endif /* CRC_16_TABLE_SIZE > 0U */
+#endif /* CRC16_TABLE_SIZE > 0U */
 

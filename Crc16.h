@@ -16,18 +16,24 @@
 
 
 
-/** @brief Definition of the initial value of crc16 */
+/**
+ * @brief Definition of the initial value of crc16
+ */
 #define CRC16_INITIAL_VALUE   0xFFFFU
 
-/** @brief definition of key width CRC16 polynomial [CRC002] */
+/**
+ * @brief definition of key width CRC16 polynomial [CRC002]
+ */
 #define CRC16_POLYNOMIAL    0x1021U
 
+#if !defined(CRC_16_TABLE_SIZE)
 /**
- * \brief Number of elements in CRC16 lookup table
+ * @brief Number of elements in CRC16 lookup table
  *
- * If size is 0 table based calculation is deactivated. */
-#define CRC_16_TABLE_SIZE     256U
-
+ * If size is 0 table based calculation is deactivated.
+ */
+#define CRC16_TABLE_SIZE     256U
+#endif
 
 
 
@@ -36,7 +42,10 @@ class Crc16
    public:
       Crc16();
       virtual ~Crc16();
-      uint16_t calculate(uint8_t* Crc_DataPtr, uint32_t Crc_Length, uint16_t Crc_StartValue16, boolean Crc_IsFirstCall);
+      static uint16_t calculate(uint8_t* Crc_DataPtr,
+                                uint32_t Crc_Length,
+                                uint16_t Crc_StartValue16,
+                                boolean Crc_IsFirstCall);
 };
 
 #endif /* _CRC16_H_ */
