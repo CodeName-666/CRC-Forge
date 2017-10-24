@@ -7,6 +7,8 @@
 
 #include "Crc8.h"
 
+#if (CRC8_ENABLED == 1U)
+
 #if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
@@ -26,7 +28,7 @@ Crc8::~Crc8()
 }
 
 
-#if (CRC8_ENABLED == 1U)
+
 
 uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
                         uint8 Crc_StartValue8, boolean Crc_IsFirstCall)
@@ -97,7 +99,7 @@ uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
    return Crc_StartValue8;
 }
 
-#endif
+
 
 
 
@@ -134,4 +136,4 @@ const uint8_t Crc_Table8[CRC8_TABLE_SIZE] =
 #endif
 };
 #endif  /* CRC8_TABLE_SIZE > 0U */
-
+#endif

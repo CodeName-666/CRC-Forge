@@ -37,7 +37,7 @@
 
 
 #if !defined(CRC16_ENABLED)
-#define CRC16_ENABLED           1
+#define CRC16_ENABLED           0
 #endif
 
 #if (CRC16_ENABLED == 1U)

@@ -25,7 +25,7 @@
  */
 #define CRC8_POLYNOMIAL          0x1DU
 
-#if !defined(CRC_8_TABLE_SIZE)
+#if !defined(CRC8_TABLE_SIZE)
 /**
  *  \brief Number of elements in CRC8 lookup table
  *
@@ -34,7 +34,7 @@
 #endif
 
 #if !defined(CRC8_ENABLED)
-#define CRC8_ENABLED                   1U
+#define CRC8_ENABLED                   0U
 #endif
 
 

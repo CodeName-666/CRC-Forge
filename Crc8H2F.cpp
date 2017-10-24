@@ -7,7 +7,7 @@
 
 #include "Crc8H2F.h"
 
-
+#if (CRC8H2F_ENABLED == 1U)
 
 #if (CRC8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
 
@@ -28,7 +28,7 @@ Crc8H2F::~Crc8H2F()
 }
 
 
-#if (CRC8H2F_ENABLED == 1U)
+
 
 uint8_t Crc8H2F::calculate(uint8_t* Crc_DataPtr,
                            uint32_t Crc_Length,
@@ -97,7 +97,7 @@ uint8_t Crc8H2F::calculate(uint8_t* Crc_DataPtr,
    return Crc_StartValue8H2F;
 }
 
-#endif
+
 
 
 #if (CRC8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
@@ -134,4 +134,4 @@ const uint8_t Crc_Table8H2F[CRC8H2F_TABLE_SIZE] =
 };
 
 #endif  /* CRC8H2F_TABLE_SIZE > 0U */
-
+#endif

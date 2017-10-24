@@ -22,7 +22,7 @@
 /** @brief CRC8 0x2F polynomial */
 #define CRC8H2F_POLYNOMIAL               0x2FU
 
-#if !defined(CRC_8H2F_TABLE_SIZE)
+#if !defined(CRC8H2F_TABLE_SIZE)
 /**
  * \brief Number of elements in CRC8H2F lookup table
  *
@@ -31,7 +31,7 @@
 #endif
 
 #if !defined(CRC8H2F_ENABLED)
-#define CRC8H2F_ENABLED                   1U
+#define CRC8H2F_ENABLED                   0U
 #endif
 
 

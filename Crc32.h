@@ -38,7 +38,7 @@
  */
 #define CRC32_POLYNOMIAL    0xEDB88320U
 
-#if !defined(CRC_32_TABLE_SIZE)
+#if !defined(CRC32_TABLE_SIZE)
 /**
  * @brief Number of elements in CRC32 lookup table
  *
@@ -47,7 +47,7 @@
 #endif
 
 #if !defined(CRC32_ENABLED)
-#define CRC32_ENABLED               1U
+#define CRC32_ENABLED                                    0U
 #endif
 
 #if (CRC32_ENABLED == 1U)

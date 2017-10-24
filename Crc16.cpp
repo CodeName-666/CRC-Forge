@@ -7,11 +7,16 @@
 
 #include "Crc16.h"
 
+#if (CRC16_ENABLED == 1U)
+
+
 #if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
 extern const uint16_t Crc_Table16[CRC16_TABLE_SIZE];
 #endif
+
+
 
 
 Crc16::Crc16()
@@ -25,7 +30,6 @@ Crc16::~Crc16()
    // TODO Auto-generated destructor stub
 }
 
-#if (CRC16_ENABLED == 1U)
 
 uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
                         uint32_t Crc_Length,
@@ -100,7 +104,7 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
     * anything here */
    return Crc_StartValue16;
 }
-#endif
+
 
 
 #if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
@@ -145,4 +149,6 @@ const uint16_t Crc_Table16[CRC16_TABLE_SIZE] =
 };
 
 #endif /* CRC16_TABLE_SIZE > 0U */
+#endif
+
 
