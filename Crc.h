@@ -13,7 +13,25 @@
 #else
    #include "WProgram.h"
 #endif
+
 #include "Crc_Cfg.h"
+
+#if (CRC8_ENABLED == CRC_ENABLED)
+#include "src/Crc8.h"
+#endif
+
+#if(CRC8H2F_ENABLED == CRC_ENABLED)
+#include "src/Crc8H2F.h"
+#endif
+
+#if(CRC16_ENABLED == CRC_ENABLED)
+#include "src/Crc16.h"
+#endif
+
+#if(CRC32_ENABLED == CRC_ENABLED)
+#include "src/Crc32.h"
+#endif
+
 
 
 class Crc

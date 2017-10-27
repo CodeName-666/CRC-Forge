@@ -7,8 +7,6 @@
 
 #include "Crc16.h"
 
-#if (CRC16_ENABLED == 1U)
-
 
 #if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
@@ -31,63 +29,63 @@ Crc16::~Crc16()
 }
 
 
-uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
-                        uint32_t Crc_Length,
-                        uint16_t Crc_StartValue16,
-                        boolean Crc_IsFirstCall
+uint16_t Crc16::calculate(uint8_t* dataPtr,
+                        uint32_t dataLength,
+                        uint16_t startValue,
+                        boolean isFirstCall
                        )
 {
 #if (CRC16_TABLE_SIZE == 0U)
    uint8_t i; /* loop counter */
 #endif
 
-   if (true == Crc_IsFirstCall)
+   if (true == isFirstCall)
    {
-      Crc_StartValue16 = CRC16_INITIAL_VALUE;
+      startValue = CRC16_INITIAL_VALUE;
    }
 
    /* Process all data (byte wise) */
-   while (Crc_Length != 0U)
+   while (dataLength != 0U)
    {
 #if (CRC16_TABLE_SIZE == 16U) /* CRC16 generation with small table */
 
       /* Process high nibble of actual data */
-      Crc_StartValue16
+      startValue
       = Crc_Table16[
-      ((uint8)(Crc_StartValue16 >> 12U)) ^ ((uint8)(*Crc_DataPtr >> 4U))]
-      ^ ((uint16)(Crc_StartValue16 << 4U));
+      ((uint8)(startValue >> 12U)) ^ ((uint8)(*dataPtr >> 4U))]
+      ^ ((uint16)(startValue << 4U));
 
       /* Process low nibble of actual data */
-      Crc_StartValue16
+      startValue
       = Crc_Table16[
-      ((uint8)(Crc_StartValue16 >> 12U)) ^ (*Crc_DataPtr & 0x0FU)]
-      ^ ((uint16)(Crc_StartValue16 << 4U));
+      ((uint8)(startValue >> 12U)) ^ (*dataPtr & 0x0FU)]
+      ^ ((uint16)(startValue << 4U));
 
 #elif (CRC16_TABLE_SIZE == 256U) /* CRC16 generation with large table */
 
       /* Process one byte of data */
-      Crc_StartValue16
-      = Crc_Table16[((uint8)(Crc_StartValue16 >> 8U)) ^ *Crc_DataPtr]
-      ^ ((uint16)(Crc_StartValue16 << 8U));
+      startValue
+      = Crc_Table16[((uint8)(startValue >> 8U)) ^ *dataPtr]
+      ^ ((uint16)(startValue << 8U));
 
 #else /* CRC16 generation at runtime */
 
-      Crc_StartValue16 ^= (uint16)(((uint16)*Crc_DataPtr) << 8U);
+      startValue ^= (uint16)(((uint16)*dataPtr) << 8U);
 
       /* calculate crc bit by bit */
       for (i = 0U; i < 8U; ++i)
       {
          /* if highest bit set to zero */
-         if ((Crc_StartValue16 & 0x8000U) == 0U)
+         if ((startValue & 0x8000U) == 0U)
          {
             /* no need to xor the zero bit with the polynomial, just shift */
-            Crc_StartValue16 <<= 1U;
+            startValue <<= 1U;
          }
          else
          {
             /* bit was set to one: xor it with the CRC16 polynomial */
-            Crc_StartValue16
-            = ((uint16)(Crc_StartValue16 << 1U)) ^ CRC16_POLYNOMIAL;
+            startValue
+            = ((uint16)(startValue << 1U)) ^ CRC16_POLYNOMIAL;
          }
       }
 
@@ -96,13 +94,13 @@ uint16_t Crc16::calculate(uint8_t* Crc_DataPtr,
       /* Advance the pointer and decrease remaining bytes to calculate over
        * until all bytes in the buffer have been used as input */
       /* Deviation MISRA-1 */
-      ++Crc_DataPtr;
-      --Crc_Length;
+      ++dataPtr;
+      --dataLength;
    } /* while (Crc_Length != 0U) */
 
    /* specified final XOR value for CRC16 is 0, no need to actually xor
     * anything here */
-   return Crc_StartValue16;
+   return startValue;
 }
 
 
@@ -148,7 +146,7 @@ const uint16_t Crc_Table16[CRC16_TABLE_SIZE] =
 #endif
 };
 
-#endif /* CRC16_TABLE_SIZE > 0U */
+
 #endif
 
 

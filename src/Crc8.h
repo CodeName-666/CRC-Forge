@@ -15,6 +15,10 @@
 #endif
 
 
+#define CRC_SYSTEM_CALCULATION                                   0U
+#define CRC_SMALL_TABLE_CALCULATION                            16U
+#define CRC_LARGE_TABLE_CALCULATION                           256U
+
 
 /** @brief Definition of the initial value of the SAE J1850 CRC8 */
 #define CRC8_INITIAL_VALUE        0xFFU
@@ -25,6 +29,10 @@
  */
 #define CRC8_POLYNOMIAL          0x1DU
 
+
+#define CRC8_TABLE_SIZE                CRC_LARGE_TABLE_CALCULATION
+
+
 #if !defined(CRC8_TABLE_SIZE)
 /**
  *  \brief Number of elements in CRC8 lookup table
@@ -33,24 +41,15 @@
 #define CRC8_TABLE_SIZE      256U
 #endif
 
-#if !defined(CRC8_ENABLED)
-#define CRC8_ENABLED                   0U
-#endif
-
-
-#if (CRC8_ENABLED == 1U)
-
 class Crc8
 {
    public:
       Crc8();
       virtual ~Crc8();
-      static uint8_t calculate(uint8_t* Crc_DataPtr,
-                               uint32_t Crc_Length,
-                               uint8_t Crc_StartValue8,
-                               boolean Crc_IsFirstCall);
+      static uint8_t calculate(uint8* dataPtr, uint32 dataLength,
+                               uint8 startValue, boolean isFirstCall);
 };
 #endif
 
 
-#endif /* SOUCRE_CRC_CRC8_H_ */
+

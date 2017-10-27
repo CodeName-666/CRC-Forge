@@ -14,6 +14,10 @@
    #include "WProgram.h"
 #endif
 
+#define CRC_SYSTEM_CALCULATION                                   0U
+#define CRC_SMALL_TABLE_CALCULATION                            16U
+#define CRC_LARGE_TABLE_CALCULATION                           256U
+
 
 
 /**
@@ -26,6 +30,9 @@
  */
 #define CRC16_POLYNOMIAL    0x1021U
 
+
+#define CRC16_TABLE_SIZE               CRC_LARGE_TABLE_CALCULATION
+
 #if !defined(CRC16_TABLE_SIZE)
 /**
  * @brief Number of elements in CRC16 lookup table
@@ -36,22 +43,21 @@
 #endif
 
 
-#if !defined(CRC16_ENABLED)
-#define CRC16_ENABLED           0
-#endif
 
-#if (CRC16_ENABLED == 1U)
+
+
 
 class Crc16
 {
    public:
       Crc16();
       virtual ~Crc16();
-      static uint16_t calculate(uint8_t* Crc_DataPtr,
-                                uint32_t Crc_Length,
-                                uint16_t Crc_StartValue16,
-                                boolean Crc_IsFirstCall);
+      static uint16_t calculate(uint8_t* dataPtr,
+                                uint32_t dataLength,
+                                uint16_t startValue,
+                                boolean isFirstCall
+                               );
 };
 
-#endif
+
 #endif /* _CRC16_H_ */

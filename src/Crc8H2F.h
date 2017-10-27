@@ -15,12 +15,20 @@
 #endif
 
 
+#define CRC_SYSTEM_CALCULATION                                   0U
+#define CRC_SMALL_TABLE_CALCULATION                            16U
+#define CRC_LARGE_TABLE_CALCULATION                           256U
+
 
 /** @brief Definition of the initial value of the CRC8 on polynom 0x2F */
 #define CRC8H2F_INITIAL_VALUE        0xFFU
 
 /** @brief CRC8 0x2F polynomial */
 #define CRC8H2F_POLYNOMIAL               0x2FU
+
+
+#define CRC8H2F_TABLE_SIZE             CRC_LARGE_TABLE_CALCULATION
+
 
 #if !defined(CRC8H2F_TABLE_SIZE)
 /**
@@ -30,22 +38,19 @@
 #define CRC8H2F_TABLE_SIZE   256U
 #endif
 
-#if !defined(CRC8H2F_ENABLED)
-#define CRC8H2F_ENABLED                   0U
-#endif
 
 
-#if (CRC8H2F_ENABLED == 1U)
+
 class Crc8H2F
 {
    public:
       Crc8H2F();
       virtual ~Crc8H2F();
-      static uint8_t calculate(uint8_t* Crc_DataPtr,
-                               uint32_t Crc_Length,
-                               uint8_t Crc_StartValue8H2F,
-                               boolean Crc_IsFirstCall);
+      static uint8_t calculate(uint8_t* dataPtr,
+                               uint32_t dataLength,
+                               uint8_t startValue,
+                               boolean isFirstCall);
 };
 
-#endif
+
 #endif /* SOUCRE_CRC_CRC8H2F_H_ */

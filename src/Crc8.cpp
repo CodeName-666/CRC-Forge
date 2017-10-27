@@ -7,7 +7,7 @@
 
 #include "Crc8.h"
 
-#if (CRC8_ENABLED == 1U)
+
 
 #if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
@@ -30,54 +30,54 @@ Crc8::~Crc8()
 
 
 
-uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
-                        uint8 Crc_StartValue8, boolean Crc_IsFirstCall)
+uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
+                        uint8 startValue, boolean isFirstCall)
 {
 
 #if (CRC8_TABLE_SIZE == 0U)
    uint8_t i; /* loop counter */
 #endif
 
-   if (true == Crc_IsFirstCall) {
-      Crc_StartValue8 = CRC8_INITIAL_VALUE;
+   if (true == isFirstCall) {
+      startValue = CRC8_INITIAL_VALUE;
    } else {
       /* undo the XOR on the incoming value */
-      Crc_StartValue8 ^= 0xFFU;
+      startValue ^= 0xFFU;
    }
 
    /* Process all data (byte wise) */
-   while (Crc_Length != 0U) {
+   while (dataLength != 0U) {
 #if (CRC8_TABLE_SIZE == 16U) /* CRC8 generation with small table */
 
       /* Process high nibble of data byte */
-      Crc_StartValue8
+      startValue
       = Crc_Table8[
-      ((uint8)(Crc_StartValue8 >> 4U)) ^ ((uint8)(*Crc_DataPtr >> 4U))]
-      ^ ((uint8)(Crc_StartValue8 << 4U));
+      ((uint8)(startValue >> 4U)) ^ ((uint8)(*dataPtr >> 4U))]
+      ^ ((uint8)(startValue << 4U));
 
       /* Process low nibble of data byte */
-      Crc_StartValue8
+      startValue
       = Crc_Table8[
-      ((uint8)(Crc_StartValue8 >> 4U)) ^ (*Crc_DataPtr & 0x0FU)]
-      ^ ((uint8)(Crc_StartValue8 << 4U));
+      ((uint8)(startValue >> 4U)) ^ (*dataPtr & 0x0FU)]
+      ^ ((uint8)(startValue << 4U));
 
 #elif (CRC8_TABLE_SIZE == 256U) /* CRC8 generation with large table */
 
-      Crc_StartValue8 = Crc_Table8[Crc_StartValue8 ^ *Crc_DataPtr];
+      startValue = Crc_Table8[startValue ^ *dataPtr];
 
 #else /* CRC8 generation at runtime */
 
-      Crc_StartValue8 ^= *Crc_DataPtr;
+      startValue ^= *dataPtr;
 
       /* calculate crc bit by bit */
       for (i = 0U; i < 8U; ++i) {
          /* if highest bit set to zero */
-         if ((Crc_StartValue8 & 0x80U) == 0U) {
+         if ((startValue & 0x80U) == 0U) {
             /* no need to xor with the polynomial, just shift */
-            Crc_StartValue8 <<= 1U;
+            startValue <<= 1U;
          } else {
             /* bit was set to one: xor it with the CRC8 polynomial */
-            Crc_StartValue8 = ((uint8) (Crc_StartValue8 << 1U))
+            startValue = ((uint8) (startValue << 1U))
                   ^ CRC8_POLYNOMIAL;
          }
       }
@@ -87,16 +87,16 @@ uint8_t Crc8::calculate(uint8* Crc_DataPtr, uint32 Crc_Length,
       /* Advance the pointer and decrease remaining bytes to calculate over
        * until all bytes in the buffer have been used as input */
       /* Deviation MISRA-1 */
-      ++Crc_DataPtr;
-      --Crc_Length;
+      ++dataPtr;
+      --dataLength;
    } /* while (Crc_Length != 0) */
 
    /* Note that the Autosar R3.1 CRC SWS specifies a xor value of 0 which is
     * wrong.  The Autosar R4.0 CRC SWS specifies the corrected xor value of
     * 0xFF. */
-   Crc_StartValue8 ^= 0xFFU; /* XOR crc value */
+   startValue ^= 0xFFU; /* XOR crc value */
 
-   return Crc_StartValue8;
+   return startValue;
 }
 
 
@@ -136,4 +136,4 @@ const uint8_t Crc_Table8[CRC8_TABLE_SIZE] =
 #endif
 };
 #endif  /* CRC8_TABLE_SIZE > 0U */
-#endif
+

@@ -6,10 +6,7 @@
 */
 
 #include "Crc.h"
-#include "Crc8.h"
-#include "Crc8H2F.h"
-#include "Crc16.h"
-#include "Crc32.h"
+
 
 
 Crc::Crc()

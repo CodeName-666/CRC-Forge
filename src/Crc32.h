@@ -15,6 +15,10 @@
 #endif
 
 
+#define CRC_SYSTEM_CALCULATION                                   0U
+#define CRC_SMALL_TABLE_CALCULATION                            16U
+#define CRC_LARGE_TABLE_CALCULATION                           256U
+
 
 /**
  * @brief Definition of the initial value of crc32
@@ -38,6 +42,10 @@
  */
 #define CRC32_POLYNOMIAL    0xEDB88320U
 
+
+#define CRC32_TABLE_SIZE               CRC_LARGE_TABLE_CALCULATION
+
+
 #if !defined(CRC32_TABLE_SIZE)
 /**
  * @brief Number of elements in CRC32 lookup table
@@ -46,22 +54,18 @@
 #define CRC32_TABLE_SIZE     256U
 #endif
 
-#if !defined(CRC32_ENABLED)
-#define CRC32_ENABLED                                    0U
-#endif
-
-#if (CRC32_ENABLED == 1U)
 
 class Crc32
 {
    public:
       Crc32();
       virtual ~Crc32();
-      static uint32_t calculate(uint8_t* Crc_DataPtr,
-                                uint32_t Crc_Length,
-                                uint32_t Crc_StartValue32,
-                                boolean Crc_IsFirstCall);
+      static uint32_t calculate(uint8_t* dataPtr,
+                                 uint32_t dataLength,
+                                 uint32_t startValue,
+                                 boolean isFirstCall
+                                );
 };
 
-#endif
+
 #endif /* SOUCRE_CRC_CRC32_H_ */

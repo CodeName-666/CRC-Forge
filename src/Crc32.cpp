@@ -7,7 +7,7 @@
 
 #include "Crc32.h"
 
-#if (CRC32_ENABLED == 1U)
+
 
 #if (CRC32_TABLE_SIZE > 0U) /* CRC32 generation via table */
 
@@ -32,55 +32,55 @@ Crc32::~Crc32()
 
 
 
-uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
-                          uint32_t Crc_Length,
-                          uint32_t Crc_StartValue32,
-                          boolean Crc_IsFirstCall
+uint32_t Crc32::calculate(uint8_t* dataPtr,
+                          uint32_t dataLength,
+                          uint32_t startValue,
+                          boolean isFirstCall
                          )
 {
 #if (CRC32_TABLE_SIZE == 0U)
    uint8_t i; /* loop counter */
 #endif
 
-   if (true == Crc_IsFirstCall)
+   if (true == isFirstCall)
    {
-      Crc_StartValue32 = CRC32_INITIAL_VALUE;
+      startValue = CRC32_INITIAL_VALUE;
    }
    else
    {
       /* undo the XOR on the start value */
-      Crc_StartValue32 ^= 0xFFFFFFFFU;
+      startValue ^= 0xFFFFFFFFU;
 
       /* The reflection of the initial value is not necessary here as we used
        * the "reflected" algorithm and reflected table values. */
    }
 
    /* Process all data byte-wise */
-   while (Crc_Length != 0U)
+   while (dataLength != 0U)
    {
 #if (CRC32_TABLE_SIZE == 16U) /* CRC32 generation via small table */
 
       /* Process low nibble of actual data */
-      Crc_StartValue32
-      = Crc_Table32[0x0FU & (Crc_StartValue32 ^ *Crc_DataPtr)]
-      ^ (Crc_StartValue32 >> 4U);
+      startValue
+      = Crc_Table32[0x0FU & (startValue ^ *dataPtr)]
+      ^ (startValue >> 4U);
 
       /* Process high nibble of actual data */
-      Crc_StartValue32
+      startValue
       = Crc_Table32[
-      0x0FU & (Crc_StartValue32 ^ ((uint32)*Crc_DataPtr >> 4U))]
-      ^ (Crc_StartValue32 >> 4U);
+      0x0FU & (startValue ^ ((uint32)*dataPtr >> 4U))]
+      ^ (startValue >> 4U);
 
 #elif (CRC32_TABLE_SIZE == 256U) /* CRC32 generation via large table */
 
       /* Process one byte of data */
-      Crc_StartValue32
-      = Crc_Table32[((uint8)Crc_StartValue32) ^ *Crc_DataPtr]
-      ^ (Crc_StartValue32 >> 8U);
+      startValue
+      = Crc_Table32[((uint8)startValue) ^ *dataPtr]
+      ^ (startValue >> 8U);
 
 #else /* CRC32 generation at runtime */
 
-      Crc_StartValue32 ^= *Crc_DataPtr;
+      startValue ^= *dataPtr;
 
       /* calculate crc bit by bit */
       for (i = 0U; i < 8U; ++i)
@@ -88,16 +88,16 @@ uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
          /* Test value uf the lowest bit.  Note that the CRC32 works on
           * reflected data in contrast to CRC8 and CRC16 and does therfore
           * start with the least significant bit. */
-         if ((Crc_StartValue32 & 1U) == 0U)
+         if ((startValue & 1U) == 0U)
          {
             /* no need to xor with the polynomial, just shift */
-            Crc_StartValue32 >>= 1U;
+            startValue >>= 1U;
          }
          else
          {
             /* bit was set to one: xor it with the reflected CRC32
              * polynomial */
-            Crc_StartValue32 = (Crc_StartValue32 >> 1U) ^ CRC32_POLYNOMIAL;
+            startValue = (startValue >> 1U) ^ CRC32_POLYNOMIAL;
          }
       }
 
@@ -106,16 +106,16 @@ uint32_t Crc32::calculate(uint8_t* Crc_DataPtr,
       /* Advance the pointer and decrease remaining bytes to calculate over
        * until all bytes in the buffer have been used as input */
       /* Deviation MISRA-1 */
-      ++Crc_DataPtr;
-      --Crc_Length;
+      ++dataPtr;
+      --dataLength;
    } /* while (Crc_Length != 0U) */
 
    /* The reflection of the remainder is not necessary here as we used the
     * "reflected" algorithm and reflected table values. */
 
-   Crc_StartValue32 ^= 0xFFFFFFFFU; /* XOR crc value */
+   startValue ^= 0xFFFFFFFFU; /* XOR crc value */
 
-   return Crc_StartValue32;
+   return startValue;
 }
 
 
@@ -189,5 +189,5 @@ const uint32_t Crc_Table32[CRC32_TABLE_SIZE] =
 #endif
 };
 
-#endif
+
 #endif /* CRC_32_TABLE_SIZE > 0U */
