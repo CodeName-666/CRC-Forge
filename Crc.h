@@ -46,10 +46,11 @@ class Crc
 
    typedef enum
    {
-      CRC_IMMEDIATE       =0x00,
-      CRC_CYCLIC               ,
-   }Crc_CalcType_t;
+      CRC_NO_CALC         = 0x00,
+      CRC_CALC_ACTIVE           ,
+      CRC_CALC_FINISHED         ,
 
+   }Crc_CalcStatus_t;
    public:
       Crc();
       virtual ~Crc();
@@ -63,22 +64,25 @@ class Crc
       void setType(Crc_t type);
       uint32_t calculate(void);
 
+      void start(void);
       boolean isFinished(void);
-      uint32_t get(void);
+      uint32_t getCrc(void);
       void loop(void);
+      Crc_CalcStatus_t getStatus(void);
 
    public: /*static functions*/
-      static uint8_t  calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE));
-      static uint8_t  calculateCrc8   (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE));
-      static uint16_t calculateCrc16  (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE));
-      static uint32_t calculateCrc32  (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE));
+      static uint8_t  calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
+      static uint8_t  calculateCrc8   (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
+      static uint16_t calculateCrc16  (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
+      static uint32_t calculateCrc32  (uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
       static uint32_t calculate       (Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
    private:
-      uint8_t* _dataPtr;
-      uint32_t _dataLen;
-      Crc_t  _type;
-      Crc_CalcType_t _calcType;
-      uint32_t _dataCount;
+      uint8_t*         _dataPtr;
+      uint32_t         _dataLen;
+      uint32_t         _crc;
+      Crc_t            _type;
+      uint32_t         _dataCount;
+      Crc_CalcStatus_t _status;
 
 };
 

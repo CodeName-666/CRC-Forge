@@ -11,13 +11,22 @@
 
 Crc::Crc()
 {
-// TODO Auto-generated constructor stub
-
+   _dataPtr   = NULL;
+   _dataLen   = 0;
+   _crc       = 0;
+   _type      = CRC_8;
+   _dataCount = 0;
+   _status    = CRC_NO_CALC;
 }
 
 Crc::~Crc()
 {
-// TODO Auto-generated destructor stub
+      _dataPtr   = NULL;
+      _dataLen   = 0;
+      _crc       = 0;
+      _type      = CRC_8;
+      _dataCount = 0;
+      _status    = CRC_NO_CALC;
 }
 
 
@@ -128,4 +137,67 @@ uint32_t Crc::calculate(Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean 
        }
     }
     return ret;
+}
+
+
+boolean Crc::isFinished(void)
+{
+   return (_status == CRC_CALC_FINISHED) ? true : false;
+}
+
+uint32_t Crc::getCrc(void)
+{
+   uint32_t ret = 0;
+
+   if(_status == CRC_CALC_FINISHED)
+   {
+      ret = _crc;
+      _dataCount = 0;
+      _status = CRC_NO_CALC;
+   }
+   return ret;
+}
+
+void Crc::loop(void)
+{
+
+   if(_status == CRC_CALC_ACTIVE)
+   {
+      if(_dataCount != 0)
+      {
+         _crc = calculate(_type,&(_dataPtr[_dataCount]),1,false,_crc);
+      }
+      else
+      {
+         _crc = calculate(_type,&(_dataPtr[_dataCount]),1,true,CRC_START_VALUE);
+      }
+      if(_dataCount < _dataLen)
+      {
+         _dataCount++;
+      }
+      else
+      {
+         _status = CRC_CALC_FINISHED;
+      }
+   }
+   return;
+}
+
+Crc::Crc_CalcStatus_t Crc::getStatus(void)
+{
+   return _status;
+}
+
+
+void Crc::start(void)
+{
+   if(_dataPtr != NULL && _dataLen != 0)
+   {
+      if(_status == CRC_NO_CALC)
+      {
+         _status = CRC_CALC_ACTIVE;
+         _dataCount = 0;
+      }
+   }
+   return;
 }
