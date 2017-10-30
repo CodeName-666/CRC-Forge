@@ -1,8 +1,9 @@
 
 
 
+#define CRC_START_VALUE                                  0xFFFFFFFF
 
-#define CRC_SYSTEM_CALCULATION                                   0U
+#define CRC_SYSTEM_CALCULATION                                  0U
 #define CRC_SMALL_TABLE_CALCULATION                            16U
 #define CRC_LARGE_TABLE_CALCULATION                           256U
 
