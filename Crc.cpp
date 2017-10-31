@@ -8,7 +8,9 @@
 #include "Crc.h"
 
 
-
+/******************************************************************************
+ * FUNCTION: Crc(...)
+ ******************************************************************************/
 Crc::Crc()
 {
    _dataPtr   = NULL;
@@ -19,6 +21,9 @@ Crc::Crc()
    _status    = CRC_NO_CALC;
 }
 
+/******************************************************************************
+ * FUNCTION: ~Crc(...)
+ ******************************************************************************/
 Crc::~Crc()
 {
       _dataPtr   = NULL;
@@ -30,45 +35,67 @@ Crc::~Crc()
 }
 
 
-
-uint32 Crc::getDataLen() const
+/******************************************************************************
+ * FUNCTION: uint32 getDataLen(...)
+ ******************************************************************************/
+uint32 Crc::getDataLen(void) const
 {
    return _dataLen;
 }
 
+/******************************************************************************
+ * FUNCTION: void setDataLen(...)
+ ******************************************************************************/
 void Crc::setDataLen(uint32 dataLen)
 {
    _dataLen = dataLen;
 }
 
+/******************************************************************************
+ * FUNCTION: uint8_t* getDataPtr(...)
+ ******************************************************************************/
 uint8_t* Crc::getDataPtr() const
 {
    return _dataPtr;
 }
 
+/******************************************************************************
+ * FUNCTION: void setDataPtr(...)
+ ******************************************************************************/
 void Crc::setDataPtr(uint8_t* dataPtr)
 {
    _dataPtr = dataPtr;
 }
 
-Crc::Crc_t Crc::getType() const
+/******************************************************************************
+ * FUNCTION: Crc_t getType(...)
+ ******************************************************************************/
+Crc::Crc_t Crc::getType(void) const
 {
    return _type;
 }
 
+/******************************************************************************
+ * FUNCTION: void setType(...)
+ ******************************************************************************/
 void Crc::setType(Crc_t type)
 {
    _type = type;
 }
 
-
+/******************************************************************************
+ * FUNCTION: uint32_t calculate(...)
+ ******************************************************************************/
 uint32_t Crc::calculate(void)
 {
-   return  Crc::calculate(_type, _dataPtr, _dataLen,true);
+   return Crc::calculate(_type, _dataPtr, _dataLen,true);
 
 }
 
-uint8_t  Crc::calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
+/******************************************************************************
+ * FUNCTION: uint8_t calculateCrc82HF(...)
+ ******************************************************************************/
+uint8_t Crc::calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint8_t ret = 0;
 #if (CRC8H2F_ENABLED == 1)
@@ -77,7 +104,10 @@ uint8_t  Crc::calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean first
    return ret;
 }
 
-uint8_t  Crc::calculateCrc8(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
+/******************************************************************************
+ * FUNCTION: uint8_t calculateCrc8(...)
+ ******************************************************************************/
+uint8_t Crc::calculateCrc8(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint8_t ret = 0;
 #if (CRC8_ENABLED == 1)
@@ -86,6 +116,9 @@ uint8_t  Crc::calculateCrc8(uint8_t* dataPtr, uint32_t dataLen, boolean firstCal
    return ret;
 }
 
+/******************************************************************************
+ * FUNCTION: uint16_t calculateCrc16(...)
+ ******************************************************************************/
 uint16_t Crc::calculateCrc16(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint16_t ret = 0;
@@ -95,6 +128,9 @@ uint16_t Crc::calculateCrc16(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
    return ret;
 }
 
+/******************************************************************************
+ * FUNCTION: uint32_t calculateCrc32(...)
+ ******************************************************************************/
 uint32_t Crc::calculateCrc32(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint32_t ret = 0;
@@ -104,7 +140,9 @@ uint32_t Crc::calculateCrc32(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
    return ret;
 }
 
-
+/******************************************************************************
+ * FUNCTION: uint32_t calculate(...)
+ ******************************************************************************/
 uint32_t Crc::calculate(Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint32_t ret = 0;
@@ -139,13 +177,18 @@ uint32_t Crc::calculate(Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean 
     return ret;
 }
 
-
+/******************************************************************************
+ * FUNCTION: boolean isFinished(...)
+ ******************************************************************************/
 boolean Crc::isFinished(void)
 {
    return (_status == CRC_CALC_FINISHED) ? true : false;
 }
 
-uint32_t Crc::getCrc(void)
+/******************************************************************************
+ * FUNCTION: uint32_t getCrc(...)
+ ******************************************************************************/
+uint32_t Crc::get(void)
 {
    uint32_t ret = 0;
 
@@ -158,6 +201,9 @@ uint32_t Crc::getCrc(void)
    return ret;
 }
 
+/******************************************************************************
+ * FUNCTION: void loop(...)
+ ******************************************************************************/
 void Crc::loop(void)
 {
 
@@ -183,12 +229,17 @@ void Crc::loop(void)
    return;
 }
 
+/******************************************************************************
+ * FUNCTION: Crc_CalcStatus_t getStatus(...)
+ ******************************************************************************/
 Crc::Crc_CalcStatus_t Crc::getStatus(void)
 {
    return _status;
 }
 
-
+/******************************************************************************
+ * FUNCTION: void start(...)
+ ******************************************************************************/
 void Crc::start(void)
 {
    if(_dataPtr != NULL && _dataLen != 0)
