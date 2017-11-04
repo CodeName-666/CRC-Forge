@@ -139,7 +139,13 @@ class Crc
        *
        * Indication to calculate the crc checksum in a loop.
        */
-      void start(void);
+      boolean start(void);
+
+      /**
+       *
+       * @return
+       */
+      boolean cancle(void);
 
       /**
        * @brief Is Finished

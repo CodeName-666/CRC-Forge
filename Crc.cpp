@@ -14,10 +14,10 @@
 Crc::Crc()
 {
    _dataPtr   = NULL;
-   _dataLen   = 0;
-   _crc       = 0;
+   _dataLen   = 0u;
+   _crc       = 0u;
    _type      = CRC_8;
-   _dataCount = 0;
+   _dataCount = 0u;
    _status    = CRC_NO_CALC;
 }
 
@@ -27,10 +27,10 @@ Crc::Crc()
 Crc::~Crc()
 {
       _dataPtr   = NULL;
-      _dataLen   = 0;
-      _crc       = 0;
+      _dataLen   = 0u;
+      _crc       = 0u;
       _type      = CRC_8;
-      _dataCount = 0;
+      _dataCount = 0u;
       _status    = CRC_NO_CALC;
 }
 
@@ -239,17 +239,38 @@ Crc::Crc_CalcStatus_t Crc::getStatus(void)
 }
 
 /******************************************************************************
- * FUNCTION: void start(...)
+ * FUNCTION: boolean start(...)
  ******************************************************************************/
-void Crc::start(void)
+boolean Crc::start(void)
 {
-   if(_dataPtr != NULL && _dataLen != 0)
+   boolean ret = false;
+   if(_dataPtr != NULL && _dataLen != 0u)
    {
       if(_status == CRC_NO_CALC)
       {
          _status = CRC_CALC_ACTIVE;
-         _dataCount = 0;
+         _dataCount = 0u;
+         ret = true;
       }
    }
-   return;
+   return ret;
+}
+
+/******************************************************************************
+ * FUNCTION: boolean cancle(...)
+ ******************************************************************************/
+boolean Crc::cancle(void)
+{
+   boolean ret = false;
+   if(_dataPtr != NULL && _dataLen != 0u)
+   {
+      if(_status == CRC_CALC_ACTIVE)
+      {
+         _status = CRC_NO_CALC;
+         _crc = 0u;
+         _dataCount = 0u;
+         ret = true;
+      }
+   }
+   return ret;
 }
