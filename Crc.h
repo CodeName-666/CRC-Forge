@@ -35,6 +35,7 @@
 
 class Crc
 {
+   public:
    /**
     * @brief CRC Type
     *

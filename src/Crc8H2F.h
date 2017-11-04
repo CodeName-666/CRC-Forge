@@ -15,9 +15,9 @@
 #endif
 
 
-#define CRC_SYSTEM_CALCULATION                                   0U
-#define CRC_SMALL_TABLE_CALCULATION                            16U
-#define CRC_LARGE_TABLE_CALCULATION                           256U
+#define CRC8H2F_SYSTEM_CALCULATION                                   0U
+#define CRC8H2F_SMALL_TABLE_CALCULATION                            16U
+#define CRC8H2F_LARGE_TABLE_CALCULATION                           256U
 
 
 /** @brief Definition of the initial value of the CRC8 on polynom 0x2F */
@@ -27,7 +27,7 @@
 #define CRC8H2F_POLYNOMIAL               0x2FU
 
 
-#define CRC8H2F_TABLE_SIZE             CRC_LARGE_TABLE_CALCULATION
+#define CRC8H2F_TABLE_SIZE             CRC8H2F_LARGE_TABLE_CALCULATION
 
 
 #if !defined(CRC8H2F_TABLE_SIZE)
@@ -35,7 +35,7 @@
  * \brief Number of elements in CRC8H2F lookup table
  *
  * If size is 0 table based calculation is deactivated. */
-#define CRC8H2F_TABLE_SIZE   256U
+#define CRC8H2F_TABLE_SIZE             CRC8H2F_LARGE_TABLE_CALCULATION
 #endif
 
 

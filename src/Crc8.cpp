@@ -12,7 +12,7 @@
 #if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-extern const uint8_t Crc_Table8[CRC8_TABLE_SIZE];
+extern const uint8_t Crc8_Table[CRC8_TABLE_SIZE];
 #endif
 
 
@@ -34,7 +34,7 @@ uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
                         uint8 startValue, boolean isFirstCall)
 {
 
-#if (CRC8_TABLE_SIZE == 0U)
+#if (CRC8_TABLE_SIZE == CRC8_SYSTEM_CALCULATION)
    uint8_t i; /* loop counter */
 #endif
 
@@ -47,23 +47,23 @@ uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
 
    /* Process all data (byte wise) */
    while (dataLength != 0U) {
-#if (CRC8_TABLE_SIZE == 16U) /* CRC8 generation with small table */
+#if (CRC8_TABLE_SIZE == CRC8_SMALL_TABLE_CALCULATION) /* CRC8 generation with small table */
 
       /* Process high nibble of data byte */
       startValue
-      = Crc_Table8[
+      = Crc8_Table[
       ((uint8)(startValue >> 4U)) ^ ((uint8)(*dataPtr >> 4U))]
       ^ ((uint8)(startValue << 4U));
 
       /* Process low nibble of data byte */
       startValue
-      = Crc_Table8[
+      = Crc8_Table[
       ((uint8)(startValue >> 4U)) ^ (*dataPtr & 0x0FU)]
       ^ ((uint8)(startValue << 4U));
 
-#elif (CRC8_TABLE_SIZE == 256U) /* CRC8 generation with large table */
+#elif (CRC8_TABLE_SIZE == CRC8_LARGE_TABLE_CALCULATION) /* CRC8 generation with large table */
 
-      startValue = Crc_Table8[startValue ^ *dataPtr];
+      startValue = Crc8_Table[startValue ^ *dataPtr];
 
 #else /* CRC8 generation at runtime */
 
@@ -103,14 +103,14 @@ uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
 
 
 
-#if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
+#if (CRC8_TABLE_SIZE != CRC8_SYSTEM_CALCULATION) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-const uint8_t Crc_Table8[CRC8_TABLE_SIZE] =
+const uint8_t Crc8_Table[CRC8_TABLE_SIZE] =
 {
    0x00U, 0x1DU, 0x3AU, 0x27U, 0x74U, 0x69U, 0x4EU, 0x53U, 0xE8U, 0xF5U, 0xD2U,
    0xCFU, 0x9CU, 0x81U, 0xA6U, 0xBBU,
-#if (CRC8_TABLE_SIZE == 256U)
+#if (CRC8_TABLE_SIZE == CRC8_LARGE_TABLE_CALCULATION)
    0xCDU, 0xD0U, 0xF7U, 0xEAU, 0xB9U, 0xA4U, 0x83U, 0x9EU, 0x25U, 0x38U, 0x1FU,
    0x02U, 0x51U, 0x4CU, 0x6BU, 0x76U, 0x87U, 0x9AU, 0xBDU, 0xA0U, 0xF3U, 0xEEU,
    0xC9U, 0xD4U, 0x6FU, 0x72U, 0x55U, 0x48U, 0x1BU, 0x06U, 0x21U, 0x3CU, 0x4AU,

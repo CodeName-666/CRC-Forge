@@ -9,10 +9,10 @@
 
 
 
-#if (CRC8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
+#if (CRC8H2F_TABLE_SIZE > CRC82HF_SYSTEM_CALCULATION) /* CRC8H2F generation via table */
 
 /* Table of pre-computed values for CRC8H2F */
-extern const uint8_t Crc_Table8H2F[CRC8H2F_TABLE_SIZE];
+extern const uint8_t Crc8H2F_Table[CRC8H2F_TABLE_SIZE];
 #endif
 
 
@@ -36,7 +36,7 @@ uint8_t Crc8H2F::calculate(uint8_t* dataPtr,
                            boolean isFirstCall)
 {
 
-#if (CRC8H2F_TABLE_SIZE == 0)
+#if (CRC8H2F_TABLE_SIZE == CRC82HF_SYSTEM_CALCULATION)
    uint8_t i; /* loop counter */
 #endif
    if (true == isFirstCall) {
@@ -48,23 +48,23 @@ uint8_t Crc8H2F::calculate(uint8_t* dataPtr,
 
    /* Process all data (byte wise) */
    while (dataLength != 0U) {
-#if (CRC8H2F_TABLE_SIZE == 16U) /* CRC8H2F generation with small table */
+#if (CRC8H2F_TABLE_SIZE == CRC82HF_SMALL_TABLE_CALCULATION) /* CRC8H2F generation with small table */
 
       /* Process high nibble of data byte */
       startValue
-      = Crc_Table8H2F[
+      = Crc8H2F_Table[
       ((uint8)(startValue >> 4U)) ^ ((uint8)(*dataPtr >> 4U))]
       ^ ((uint8)(startValue << 4U));
 
       /* Process low nibble of data byte */
       startValue
-      = Crc_Table8H2F[
+      = Crc8H2F_Table[
       ((uint8)(startValue >> 4U)) ^ (*dataPtr & 0x0FU)]
       ^ ((uint8)(startValue << 4U));
 
-#elif (CRC8H2F_TABLE_SIZE == 256U) /* CRC8H2F generation with large table */
+#elif (CRC8H2F_TABLE_SIZE == CRC8H2F_LARGE_TABLE_CALCULATION) /* CRC8H2F generation with large table */
 
-      startValue = Crc_Table8H2F[startValue ^ *dataPtr];
+      startValue = Crc8H2F_Table[startValue ^ *dataPtr];
 
 #else /* CRC8H2F generation at runtime */
 
@@ -100,14 +100,14 @@ uint8_t Crc8H2F::calculate(uint8_t* dataPtr,
 
 
 
-#if (CRC8H2F_TABLE_SIZE > 0U) /* CRC8H2F generation via table */
+#if (CRC8H2F_TABLE_SIZE != CRC82HF_SYSTEM_CALCULATION) /* CRC8H2F generation via table */
 
 /* Table of pre-computed values for CRC8H2F */
-const uint8_t Crc_Table8H2F[CRC8H2F_TABLE_SIZE] =
+const uint8_t Crc8H2F_Table[CRC8H2F_TABLE_SIZE] =
 {
    0x00U, 0x2FU, 0x5EU, 0x71U, 0xBCU, 0x93U, 0xE2U, 0xCDU, 0x57U, 0x78U, 0x09U,
    0x26U, 0xEBU, 0xC4U, 0xB5U, 0x9AU,
-#if (CRC8H2F_TABLE_SIZE == 256U)
+#if (CRC8H2F_TABLE_SIZE == CRC8H2F_LARGE_TABLE_CALCULATION)
    0xAEU, 0x81U, 0xF0U, 0xDFU, 0x12U, 0x3DU, 0x4CU, 0x63U, 0xF9U, 0xD6U, 0xA7U,
    0x88U, 0x45U, 0x6AU, 0x1BU, 0x34U, 0x73U, 0x5CU, 0x2DU, 0x02U, 0xCFU, 0xE0U,
    0x91U, 0xBEU, 0x24U, 0x0BU, 0x7AU, 0x55U, 0x98U, 0xB7U, 0xC6U, 0xE9U, 0xDDU,

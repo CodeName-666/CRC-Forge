@@ -13,7 +13,7 @@
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-extern const uint32_t Crc_Table32[CRC32_TABLE_SIZE];
+extern const uint32_t Crc32_Table[CRC32_TABLE_SIZE];
 #endif
 
 
@@ -38,7 +38,7 @@ uint32_t Crc32::calculate(uint8_t* dataPtr,
                           boolean isFirstCall
                          )
 {
-#if (CRC32_TABLE_SIZE == 0U)
+#if (CRC32_TABLE_SIZE == CRC32_SYSTEM_CALCULATION)
    uint8_t i; /* loop counter */
 #endif
 
@@ -58,24 +58,24 @@ uint32_t Crc32::calculate(uint8_t* dataPtr,
    /* Process all data byte-wise */
    while (dataLength != 0U)
    {
-#if (CRC32_TABLE_SIZE == 16U) /* CRC32 generation via small table */
+#if (CRC32_TABLE_SIZE == CRC32_SMALL_TABLE_CALCULATION) /* CRC32 generation via small table */
 
       /* Process low nibble of actual data */
       startValue
-      = Crc_Table32[0x0FU & (startValue ^ *dataPtr)]
+      = Crc32_Table[0x0FU & (startValue ^ *dataPtr)]
       ^ (startValue >> 4U);
 
       /* Process high nibble of actual data */
       startValue
-      = Crc_Table32[
+      = Crc32_Table[
       0x0FU & (startValue ^ ((uint32)*dataPtr >> 4U))]
       ^ (startValue >> 4U);
 
-#elif (CRC32_TABLE_SIZE == 256U) /* CRC32 generation via large table */
+#elif (CRC32_TABLE_SIZE == CRC32_LARGE_TABLE_CALCULATION) /* CRC32 generation via large table */
 
       /* Process one byte of data */
       startValue
-      = Crc_Table32[((uint8)startValue) ^ *dataPtr]
+      = Crc32_Table[((uint8)startValue) ^ *dataPtr]
       ^ (startValue >> 8U);
 
 #else /* CRC32 generation at runtime */
@@ -122,13 +122,13 @@ uint32_t Crc32::calculate(uint8_t* dataPtr,
 
 
 
-#if (CRC32_TABLE_SIZE > 0U) /* CRC32 generation via table */
+#if (CRC32_TABLE_SIZE != CRC32_SYSTEM_CALCULATION) /* CRC32 generation via table */
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-const uint32_t Crc_Table32[CRC32_TABLE_SIZE] =
+const uint32_t Crc32_Table[CRC32_TABLE_SIZE] =
 {
-#if (CRC32_TABLE_SIZE == 16U)
+#if (CRC32_TABLE_SIZE == CRC32_SMALL_TABLE_CALCULATION)
    0x00000000U, 0x1DB71064U, 0x3B6E20C8U, 0x26D930ACU, 0x76DC4190U,
    0x6B6B51F4U, 0x4DB26158U, 0x5005713CU, 0xEDB88320U, 0xF00F9344U,
    0xD6D6A3E8U, 0xCB61B38CU, 0x9B64C2B0U, 0x86D3D2D4U, 0xA00AE278U,

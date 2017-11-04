@@ -14,9 +14,9 @@
    #include "WProgram.h"
 #endif
 
-#define CRC_SYSTEM_CALCULATION                                  0U
-#define CRC_SMALL_TABLE_CALCULATION                            16U
-#define CRC_LARGE_TABLE_CALCULATION                           256U
+#define CRC16_SYSTEM_CALCULATION                                  0U
+#define CRC16_SMALL_TABLE_CALCULATION                            16U
+#define CRC16_LARGE_TABLE_CALCULATION                           256U
 
 
 
@@ -31,7 +31,7 @@
 #define CRC16_POLYNOMIAL    0x1021U
 
 
-#define CRC16_TABLE_SIZE               CRC_LARGE_TABLE_CALCULATION
+#define CRC16_TABLE_SIZE               CRC16_LARGE_TABLE_CALCULATION
 
 #if !defined(CRC16_TABLE_SIZE)
 /**
@@ -39,7 +39,7 @@
  *
  * If size is 0 table based calculation is deactivated.
  */
-#define CRC16_TABLE_SIZE     256U
+#define CRC16_TABLE_SIZE     CRC16_LARGE_TABLE_CALCULATION
 #endif
 
 

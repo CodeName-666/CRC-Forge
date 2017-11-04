@@ -209,16 +209,17 @@ void Crc::loop(void)
 
    if(_status == CRC_CALC_ACTIVE)
    {
-      if(_dataCount != 0)
-      {
-         _crc = calculate(_type,&(_dataPtr[_dataCount]),1,false,_crc);
-      }
-      else
-      {
-         _crc = calculate(_type,&(_dataPtr[_dataCount]),1,true,CRC_START_VALUE);
-      }
       if(_dataCount < _dataLen)
       {
+         if(_dataCount == 0)
+         {
+            _crc = calculate(_type,&(_dataPtr[_dataCount]),1,true,CRC_START_VALUE);
+         }
+         else
+         {
+            _crc = calculate(_type,&(_dataPtr[_dataCount]),1,false,_crc);
+         }
+
          _dataCount++;
       }
       else
