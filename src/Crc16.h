@@ -8,11 +8,7 @@
 #ifndef _CRC16_H_
 #define _CRC16_H_
 
-#if defined(ARDUINO) && ARDUINO >= 100
-   #include "arduino.h"
-#else
-   #include "WProgram.h"
-#endif
+#include "CrcIf.h"
 
 #define CRC16_SYSTEM_CALCULATION                                  0U
 #define CRC16_SMALL_TABLE_CALCULATION                            16U
@@ -47,7 +43,7 @@
 
 
 
-class Crc16
+class Crc16 : public Crc16If
 {
    public:
       Crc16();
