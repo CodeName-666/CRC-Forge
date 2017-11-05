@@ -46,8 +46,8 @@ class Crc
    {
       CRC_8          = 0x00,//!< CRC_8 calculation will be used.
       CRC_8H2F             ,//!< CRC_8H2F calculation will be used.
-      CRC16                ,//!< CRC16 calculation will be used.
-      CRC32                 //!< CRC32 calculation will be used.
+      CRC_16                ,//!< CRC16 calculation will be used.
+      CRC_32                 //!< CRC32 calculation will be used.
    }Crc_t;
 
    /**
@@ -181,7 +181,7 @@ class Crc
        * @param startValue
        * @return
        */
-      static uint8_t  calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
+      static uint8_t  calculateCrc8H2F(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall = true, uint32 startValue = CRC_START_VALUE);
       /**
        * @brief Calculate CRC 8
        * @param dataPtr

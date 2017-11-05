@@ -96,7 +96,7 @@ uint32_t Crc::calculate(void)
 /******************************************************************************
  * FUNCTION: uint8_t calculateCrc82HF(...)
  ******************************************************************************/
-uint8_t Crc::calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
+uint8_t Crc::calculateCrc8H2F(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint8_t ret = 0;
 #if (CRC8H2F_ENABLED == 1)
@@ -151,32 +151,21 @@ uint32_t Crc::calculateCrc32(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
 uint32_t Crc::calculate(Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint32_t ret = 0;
-   CrcIf* crc;
     if(dataPtr != NULL && dataLen > 0u)
     {
        switch(type)
        {
           case CRC_8:
-#if (CRC8_ENABLED == 1)
-             Crc8 crc;
-             ret = (uint32_t)crc.calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
-#endif
+             ret = (uint32_t)calculateCrc8(dataPtr,dataLen,firstCall,startValue);
              break;
           case CRC_8H2F:
-             Crc8H2F crc;
-#if (CRC8H2F_ENABLED == 1)
-            // ret = (uint32_t)Crc8H2F::calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
-#endif
+             ret = (uint32_t)calculateCrc8H2F(dataPtr,dataLen,firstCall,startValue);
              break;
-          case CRC16:
-#if (CRC16_ENABLED == 1)
-             //ret = (uint32_t)Crc16::calculate(dataPtr,dataLen,(uint16_t)startValue,firstCall);
-#endif
+          case CRC_16:
+             ret = (uint32_t)calculateCrc16(dataPtr,dataLen,firstCall,startValue);
              break;
-          case CRC32:
-#if (CRC32_ENABLED == 1)
-             //ret = (uint32_t)Crc32::calculate(dataPtr,dataLen,(uint32_t)startValue,firstCall);
-#endif
+          case CRC_32:
+             ret = (uint32_t)calculateCrc32(dataPtr,dataLen,firstCall,startValue);
              break;
           default:
              break;
@@ -198,12 +187,12 @@ boolean Crc::isFinished(void)
  ******************************************************************************/
 uint32_t Crc::get(void)
 {
-   uint32_t ret = 0;
+   uint32_t ret = 0u;
 
    if(_status == CRC_CALC_FINISHED)
    {
       ret = _crc;
-      _dataCount = 0;
+      _dataCount = 0u;
       _status = CRC_NO_CALC;
    }
    return ret;
@@ -219,7 +208,7 @@ void Crc::loop(void)
    {
       if(_dataCount < _dataLen)
       {
-         if(_dataCount == 0)
+         if(_dataCount == 0u)
          {
             _crc = calculate(_type,&(_dataPtr[_dataCount]),1,true,CRC_START_VALUE);
          }
@@ -227,7 +216,6 @@ void Crc::loop(void)
          {
             _crc = calculate(_type,&(_dataPtr[_dataCount]),1,false,_crc);
          }
-
          _dataCount++;
       }
       else
