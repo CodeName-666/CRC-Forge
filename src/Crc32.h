@@ -8,12 +8,7 @@
 #ifndef _CRC32_H_
 #define _CRC32_H_
 
-#if defined(ARDUINO) && ARDUINO >= 100
-   #include "arduino.h"
-#else
-   #include "WProgram.h"
-#endif
-
+#include "CrcIf.h"
 
 #define CRC32_SYSTEM_CALCULATION                                   0U
 #define CRC32_SMALL_TABLE_CALCULATION                             16U
@@ -55,12 +50,12 @@
 #endif
 
 
-class Crc32
+class Crc32 : public Crc32If
 {
    public:
       Crc32();
       virtual ~Crc32();
-      static uint32_t calculate(uint8_t* dataPtr,
+      uint32_t calculate(uint8_t* dataPtr,
                                  uint32_t dataLength,
                                  uint32_t startValue,
                                  boolean isFirstCall

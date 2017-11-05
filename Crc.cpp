@@ -6,6 +6,7 @@
 */
 
 #include "Crc.h"
+#include "src/CrcIf.h"
 
 
 /******************************************************************************
@@ -99,7 +100,8 @@ uint8_t Crc::calculateCrc82HF(uint8_t* dataPtr, uint32_t dataLen, boolean firstC
 {
    uint8_t ret = 0;
 #if (CRC8H2F_ENABLED == 1)
-   ret =  Crc8H2F::calculate(dataPtr,dataLen,startValue,firstCall);
+   Crc8H2F crc;
+   ret =  crc.calculate(dataPtr,dataLen,startValue,firstCall);
 #endif
    return ret;
 }
@@ -111,7 +113,8 @@ uint8_t Crc::calculateCrc8(uint8_t* dataPtr, uint32_t dataLen, boolean firstCall
 {
    uint8_t ret = 0;
 #if (CRC8_ENABLED == 1)
-   ret =  Crc8::calculate(dataPtr,dataLen,startValue,firstCall);
+   Crc8 crc;
+   ret =  crc.calculate(dataPtr,dataLen,startValue,firstCall);
 #endif
    return ret;
 }
@@ -123,7 +126,8 @@ uint16_t Crc::calculateCrc16(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
 {
    uint16_t ret = 0;
 #if (CRC16_ENABLED == 1)
-   ret = Crc16::calculate(dataPtr,dataLen,startValue,firstCall);
+   Crc16 crc;
+   ret = crc.calculate(dataPtr,dataLen,startValue,firstCall);
 #endif
    return ret;
 }
@@ -135,7 +139,8 @@ uint32_t Crc::calculateCrc32(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
 {
    uint32_t ret = 0;
 #if (CRC32_ENABLED == 1)
-   ret = Crc32::calculate(dataPtr,dataLen,startValue,firstCall);
+   Crc32 crc;
+   ret = crc.calculate(dataPtr,dataLen,startValue,firstCall);
 #endif
    return ret;
 }
@@ -146,28 +151,31 @@ uint32_t Crc::calculateCrc32(uint8_t* dataPtr, uint32_t dataLen, boolean firstCa
 uint32_t Crc::calculate(Crc_t type, uint8_t* dataPtr, uint32_t dataLen, boolean firstCall, uint32 startValue)
 {
    uint32_t ret = 0;
+   CrcIf* crc;
     if(dataPtr != NULL && dataLen > 0u)
     {
        switch(type)
        {
           case CRC_8:
 #if (CRC8_ENABLED == 1)
-             ret = (uint32_t)Crc8::calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
+             Crc8 crc;
+             ret = (uint32_t)crc.calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
 #endif
              break;
           case CRC_8H2F:
+             Crc8H2F crc;
 #if (CRC8H2F_ENABLED == 1)
-             ret = (uint32_t)Crc8H2F::calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
+            // ret = (uint32_t)Crc8H2F::calculate(dataPtr,dataLen,(uint8_t)startValue,firstCall);
 #endif
              break;
           case CRC16:
 #if (CRC16_ENABLED == 1)
-             ret = (uint32_t)Crc16::calculate(dataPtr,dataLen,(uint16_t)startValue,firstCall);
+             //ret = (uint32_t)Crc16::calculate(dataPtr,dataLen,(uint16_t)startValue,firstCall);
 #endif
              break;
           case CRC32:
 #if (CRC32_ENABLED == 1)
-             ret = (uint32_t)Crc32::calculate(dataPtr,dataLen,(uint32_t)startValue,firstCall);
+             //ret = (uint32_t)Crc32::calculate(dataPtr,dataLen,(uint32_t)startValue,firstCall);
 #endif
              break;
           default:

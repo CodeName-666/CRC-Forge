@@ -20,7 +20,7 @@ template < typename var1>
 class CrcIf
 {
    public:
-      virtual CrcIf();
+      CrcIf();
       virtual ~CrcIf();
       virtual var1 calculate(uint8_t* dataPtr, uint32_t dataLength, var1 startValue, boolean isFirstCall);
 };

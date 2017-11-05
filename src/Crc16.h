@@ -48,7 +48,7 @@ class Crc16 : public Crc16If
    public:
       Crc16();
       virtual ~Crc16();
-      static uint16_t calculate(uint8_t* dataPtr,
+      uint16_t calculate(uint8_t* dataPtr,
                                 uint32_t dataLength,
                                 uint16_t startValue,
                                 boolean isFirstCall

@@ -8,11 +8,7 @@
 #ifndef _CRC8_H_
 #define _CRC8_H_
 
-#if defined(ARDUINO) && ARDUINO >= 100
-   #include "arduino.h"
-#else
-   #include "WProgram.h"
-#endif
+#include "CrcIf.h"
 
 
 #define CRC8_SYSTEM_CALCULATION                                   0U
@@ -46,8 +42,8 @@ class Crc8
    public:
       Crc8();
       virtual ~Crc8();
-      static uint8_t calculate(uint8* dataPtr, uint32 dataLength,
-                               uint8 startValue, boolean isFirstCall);
+      uint8_t calculate(uint8* dataPtr, uint32 dataLength,
+                        uint8 startValue, boolean isFirstCall);
 };
 #endif
 
