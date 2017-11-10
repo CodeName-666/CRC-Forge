@@ -29,7 +29,7 @@ Crc16::~Crc16()
 }
 
 
-uint16_t Crc16::calculate(uint8_t* dataPtr,
+uint32_t Crc16::calculate(uint8_t* dataPtr,
                         uint32_t dataLength,
                         uint16_t startValue,
                         boolean isFirstCall

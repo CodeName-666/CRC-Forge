@@ -30,7 +30,7 @@ Crc8::~Crc8()
 
 
 
-uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
+uint32_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
                         uint8 startValue, boolean isFirstCall)
 {
 

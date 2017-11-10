@@ -37,12 +37,12 @@
 #define CRC8_TABLE_SIZE                CRC8_LARGE_TABLE_CALCULATION
 #endif
 
-class Crc8
+class Crc8 : public CrcIf
 {
    public:
       Crc8();
       virtual ~Crc8();
-      uint8_t calculate(uint8* dataPtr, uint32 dataLength,
+      uint32_t calculate(uint8* dataPtr, uint32 dataLength,
                         uint8 startValue, boolean isFirstCall);
 };
 #endif

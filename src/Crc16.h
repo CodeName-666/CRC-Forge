@@ -43,12 +43,12 @@
 
 
 
-class Crc16 : public Crc16If
+class Crc16 : public CrcIf
 {
    public:
       Crc16();
       virtual ~Crc16();
-      uint16_t calculate(uint8_t* dataPtr,
+      uint32_t calculate(uint8_t* dataPtr,
                                 uint32_t dataLength,
                                 uint16_t startValue,
                                 boolean isFirstCall

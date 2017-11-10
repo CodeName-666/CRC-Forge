@@ -30,7 +30,7 @@ Crc8H2F::~Crc8H2F()
 
 
 
-uint8_t Crc8H2F::calculate(uint8_t* dataPtr,
+uint32_t Crc8H2F::calculate(uint8_t* dataPtr,
                            uint32_t dataLength,
                            uint8_t startValue,
                            boolean isFirstCall)

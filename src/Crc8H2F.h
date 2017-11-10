@@ -37,12 +37,12 @@
 
 
 
-class Crc8H2F
+class Crc8H2F : public CrcIf
 {
    public:
       Crc8H2F();
       virtual ~Crc8H2F();
-      uint8_t calculate(uint8_t* dataPtr,
+      uint32_t calculate(uint8_t* dataPtr,
                                uint32_t dataLength,
                                uint8_t startValue,
                                boolean isFirstCall);

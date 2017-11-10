@@ -50,7 +50,7 @@
 #endif
 
 
-class Crc32 : public Crc32If
+class Crc32 : public CrcIf
 {
    public:
       Crc32();

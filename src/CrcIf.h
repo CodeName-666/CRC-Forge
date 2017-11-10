@@ -15,20 +15,14 @@
 #endif
 
 
-template < typename var1>
-
 class CrcIf
 {
    public:
-      CrcIf();
-      virtual ~CrcIf();
-      virtual var1 calculate(uint8_t* dataPtr, uint32_t dataLength, var1 startValue, boolean isFirstCall);
+      CrcIf() {};
+      virtual ~CrcIf() {};
+      virtual uint32_t calculate(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall) {return 0;}
 };
 
 
-typedef CrcIf<uint8_t> Crc8If;
-typedef CrcIf<uint8_t> Crc8H2FIf;
-typedef CrcIf<uint16_t> Crc16If;
-typedef CrcIf<uint32_t> Crc32If;
 
 #endif /* SOUCRE_CRC_SRC_CRCIF_H_ */
