@@ -49,7 +49,7 @@ uint32_t Crc32::calculate(uint8_t* dataPtr,
    else
    {
       /* undo the XOR on the start value */
-      startValue ^= 0xFFFFFFFFU;
+      startValue ^= CRC32_INITIAL_VALUE;
 
       /* The reflection of the initial value is not necessary here as we used
        * the "reflected" algorithm and reflected table values. */

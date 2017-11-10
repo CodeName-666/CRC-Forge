@@ -43,7 +43,7 @@ uint8_t Crc8H2F::calculate(uint8_t* dataPtr,
       startValue = CRC8H2F_INITIAL_VALUE;
    } else {
       /* undo the XOR on the incoming value */
-      startValue ^= 0xFFU;
+      startValue ^= CRC8H2F_INITIAL_VALUE;
    }
 
    /* Process all data (byte wise) */

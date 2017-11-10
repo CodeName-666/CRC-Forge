@@ -42,7 +42,7 @@ uint8_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
       startValue = CRC8_INITIAL_VALUE;
    } else {
       /* undo the XOR on the incoming value */
-      startValue ^= 0xFFU;
+      startValue ^= CRC8_INITIAL_VALUE;
    }
 
    /* Process all data (byte wise) */

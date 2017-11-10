@@ -43,6 +43,10 @@ uint16_t Crc16::calculate(uint8_t* dataPtr,
    {
       startValue = CRC16_INITIAL_VALUE;
    }
+   else
+   {
+      startValue ^= CRC16_INITIAL_VALUE;
+   }
 
    /* Process all data (byte wise) */
    while (dataLength != 0U)
