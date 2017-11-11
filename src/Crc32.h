@@ -10,15 +10,6 @@
 
 #include "CrcIf.h"
 
-#define CRC32_SYSTEM_CALCULATION                                   0U
-#define CRC32_SMALL_TABLE_CALCULATION                             16U
-#define CRC32_LARGE_TABLE_CALCULATION                            256U
-
-
-/**
- * @brief Definition of the initial value of crc32
- */
-#define CRC32_INITIAL_VALUE   0xFFFFFFFFU
 
 /**
  * @brief definition of key width CRC32 polynomial [CRC002]
@@ -38,7 +29,7 @@
 #define CRC32_POLYNOMIAL    0xEDB88320U
 
 
-#define CRC32_TABLE_SIZE               CRC32_LARGE_TABLE_CALCULATION
+#define CRC32_TABLE_SIZE               CRC_LARGE_TABLE_CALCULATION
 
 
 #if !defined(CRC32_TABLE_SIZE)
@@ -46,7 +37,7 @@
  * @brief Number of elements in CRC32 lookup table
  *
  * If size is 0 table based calculation is deactivated. */
-#define CRC32_TABLE_SIZE               CRC32_LARGE_TABLE_CALCULATION
+#define CRC32_TABLE_SIZE               CRC_LARGE_TABLE_CALCULATION
 #endif
 
 

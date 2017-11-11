@@ -35,23 +35,15 @@ uint32_t Crc16::calculate(uint8_t* dataPtr,
                         boolean isFirstCall
                        )
 {
-#if (CRC16_TABLE_SIZE == CRC16_SYSTEM_CALCULATION)
+#if (CRC16_TABLE_SIZE == CRC_SYSTEM_CALCULATION)
    uint8_t i; /* loop counter */
 #endif
 
-   if (true == isFirstCall)
-   {
-      startValue = CRC16_INITIAL_VALUE;
-   }
-   else
-   {
-      startValue ^= CRC16_INITIAL_VALUE;
-   }
-
+   startValue = (uint16_t)firstCall(isFirstCall,startValue);
    /* Process all data (byte wise) */
    while (dataLength != 0U)
    {
-#if (CRC16_TABLE_SIZE == CRC16_SMALL_TABLE_CALCULATION) /* CRC16 generation with small table */
+#if (CRC16_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION) /* CRC16 generation with small table */
 
       /* Process high nibble of actual data */
       startValue
@@ -65,7 +57,7 @@ uint32_t Crc16::calculate(uint8_t* dataPtr,
       ((uint8)(startValue >> 12U)) ^ (*dataPtr & 0x0FU)]
       ^ ((uint16)(startValue << 4U));
 
-#elif (CRC16_TABLE_SIZE == CRC16_LARGE_TABLE_CALCULATION) /* CRC16 generation with large table */
+#elif (CRC16_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION) /* CRC16 generation with large table */
 
       /* Process one byte of data */
       startValue
@@ -97,9 +89,8 @@ uint32_t Crc16::calculate(uint8_t* dataPtr,
 
       /* Advance the pointer and decrease remaining bytes to calculate over
        * until all bytes in the buffer have been used as input */
-      /* Deviation MISRA-1 */
-      ++dataPtr;
-      --dataLength;
+      dataPtr++;
+      dataLength--;
    } /* while (Crc_Length != 0U) */
 
    /* specified final XOR value for CRC16 is 0, no need to actually xor
@@ -109,14 +100,14 @@ uint32_t Crc16::calculate(uint8_t* dataPtr,
 
 
 
-#if (CRC16_TABLE_SIZE != CRC16_SYSTEM_CALCULATION) /* CRC16 generation via table */
+#if (CRC16_TABLE_SIZE != CRC_SYSTEM_CALCULATION) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
 const uint16_t Crc16_Table[CRC16_TABLE_SIZE] =
 {
    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
-#if (CRC16_TABLE_SIZE == CRC16_LARGE_TABLE_CALCULATION)
+#if (CRC16_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION)
    0x1231U, 0x0210U, 0x3273U, 0x2252U, 0x52B5U, 0x4294U, 0x72F7U, 0x62D6U,
    0x9339U, 0x8318U, 0xB37BU, 0xA35AU, 0xD3BDU, 0xC39CU, 0xF3FFU, 0xE3DEU,
    0x2462U, 0x3443U, 0x0420U, 0x1401U, 0x64E6U, 0x74C7U, 0x44A4U, 0x5485U,
