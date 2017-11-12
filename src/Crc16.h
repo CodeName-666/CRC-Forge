@@ -37,11 +37,10 @@ class Crc16 : public CrcIf
    public:
       Crc16();
       virtual ~Crc16();
-      uint32_t calculate(uint8_t* dataPtr,
-                                uint32_t dataLength,
-                                uint16_t startValue,
-                                boolean isFirstCall
-                               );
+      uint32_t calculate(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
+      uint32_t calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
+      uint32_t calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
+      uint32_t calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
 };
 
 
