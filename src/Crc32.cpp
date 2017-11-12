@@ -42,19 +42,7 @@ uint32_t Crc32::calculate(uint8_t* dataPtr,
    uint8_t i; /* loop counter */
 #endif
 
-   if (true == isFirstCall)
-   {
-      startValue = CRC32_INITIAL_VALUE;
-   }
-   else
-   {
-      /* undo the XOR on the start value */
-      startValue ^= CRC32_INITIAL_VALUE;
-
-      /* The reflection of the initial value is not necessary here as we used
-       * the "reflected" algorithm and reflected table values. */
-   }
-
+   startValue = firstCall(isFirstCall,startValue);
    /* Process all data byte-wise */
    while (dataLength != 0U)
    {

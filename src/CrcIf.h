@@ -42,6 +42,8 @@ class CrcIf
       CrcIf();
       virtual ~CrcIf();
       virtual uint32_t calculate(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
+
+   private:
       virtual uint32_t calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
       virtual uint32_t calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
       virtual uint32_t calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
