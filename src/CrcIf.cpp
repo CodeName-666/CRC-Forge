@@ -72,8 +72,8 @@ uint32_t CrcIf::firstCall(boolean status, uint32_t startValue)
 
 
 
-uint32_t CrcIf::calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
-uint32_t CrcIf::calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
-uint32_t CrcIf::calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
+//uint32_t CrcIf::calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
+//uint32_t CrcIf::calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
+//uint32_t CrcIf::calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall);
 
 
