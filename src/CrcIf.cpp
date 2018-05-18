@@ -24,7 +24,10 @@
 
 uint32_t CrcIf::calculate(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue, boolean isFirstCall)
 {
-
+   (void)dataPtr;
+   (void)dataLength;
+   (void)startValue;
+   (void)isFirstCall;
    return 0;
 }
 
