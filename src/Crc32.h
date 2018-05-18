@@ -48,9 +48,9 @@ class Crc32 : public CrcIf
       virtual ~Crc32();
       uint32_t calculate(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = CRC32_INITIAL_VALUE, boolean isFirstCall = true);
    private:
-      uint32_t calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
-      uint32_t calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
-      uint32_t calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
+      uint32_t calculateToRunntime    (uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = CRC32_INITIAL_VALUE, boolean isFirstCall = true);
+      uint32_t calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = CRC32_INITIAL_VALUE, boolean isFirstCall = true);
+      uint32_t calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint32_t startValue = CRC32_INITIAL_VALUE, boolean isFirstCall = true);
 
 };
 
