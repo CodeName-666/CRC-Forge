@@ -5,6 +5,7 @@
  */
 
 #include "Crc8H2F.h"
+#include "Crc8Core.h"
 #include <stddef.h>
 
 #if CRC8H2F_ENABLED == CRC_ENABLED
@@ -24,41 +25,16 @@ extern const uint8_t Crc8H2F_Table[CRC8H2F_TABLE_SIZE] CRC_TABLE_STORAGE;
  * backend performs one byte lookup. CPU mode performs eight polynomial steps
  * per byte and stores no lookup table. AVR reads use program-memory macros.
  */
+/** @brief Delegate to the shared kernel with compile-time variant parameters. */
 uint32_t Crc8H2F::calculate(const uint8_t* pData, uint32_t dataLength,
-                            uint32_t seed, bool isFirstCall)
-{
-    uint32_t result = 0U;
-    if ((pData != nullptr) || (dataLength == 0U)) {
-        uint8_t remainder = isFirstCall ? static_cast<uint8_t>(CRC8_INITIAL_VALUE)
-            : static_cast<uint8_t>(M_CRC_XOR(seed, CRC8_INITIAL_VALUE));
-        while (dataLength != 0U) {
-#if CRC8H2F_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION
-            remainder = static_cast<uint8_t>(M_CRC_XOR(
-                M_CRC_READ8(Crc8H2F_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 4U), M_CRC_SHIFT_RIGHT(*pData, 4U))]),
-                M_CRC_SHIFT_LEFT(remainder, 4U)));
-            remainder = static_cast<uint8_t>(M_CRC_XOR(
-                M_CRC_READ8(Crc8H2F_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 4U), M_CRC_AND(*pData, 0x0FU))]),
-                M_CRC_SHIFT_LEFT(remainder, 4U)));
-#elif CRC8H2F_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION
-            remainder = static_cast<uint8_t>(M_CRC_XOR(
-                M_CRC_READ8(Crc8H2F_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 0U), *pData)]),
-                M_CRC_SHIFT_LEFT(remainder, 8U)));
+                            uint32_t seed, bool isFirstCall) {
+#if CRC8H2F_TABLE_SIZE > 0U
+    const uint8_t* const pTable = Crc8H2F_Table;
 #else
-            remainder = static_cast<uint8_t>(M_CRC_XOR(remainder, M_CRC_SHIFT_LEFT(*pData, 0U)));
-            for (uint8_t bit = 0U; bit < 8U; ++bit) {
-                const bool carry = M_CRC_AND(remainder, 0x80U) != 0U;
-                remainder = static_cast<uint8_t>(M_CRC_SHIFT_LEFT(remainder, 1U));
-                if (carry) {
-                    remainder = static_cast<uint8_t>(M_CRC_XOR(remainder, CRC8H2F_POLYNOMIAL));
-                }
-            }
+    const uint8_t* const pTable = nullptr;
 #endif
-            ++pData;
-            --dataLength;
-        }
-        result = static_cast<uint32_t>(M_CRC_XOR(remainder, CRC8_INITIAL_VALUE));
-    }
-    return result;
+    return calculateCrc8Block<CRC8H2F_POLYNOMIAL, CRC8_INITIAL_VALUE, 0xFFU, CRC8H2F_TABLE_SIZE>(
+        pData, dataLength, seed, isFirstCall, pTable);
 }
 
 #if (CRC8H2F_TABLE_SIZE != CRC_SYSTEM_CALCULATION) /* CRC8H2F generation via table */

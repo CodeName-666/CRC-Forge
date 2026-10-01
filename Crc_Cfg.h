@@ -176,6 +176,23 @@
 #endif
 
 
+/** @brief Enable optional CRC-8/SMBUS; disabled by default. */
+#ifndef CFG_CRC8_SMBUS_ENABLE
+#define CFG_CRC8_SMBUS_ENABLE 0U
+#endif
+#if CFG_CRC8_SMBUS_ENABLE != 0 && CFG_CRC8_SMBUS_ENABLE != 1
+#error "CFG_CRC8_SMBUS_ENABLE must be 0 or 1"
+#endif
+/** @brief SMBUS backend: 0, 16 or 256; inherits the global setting. */
+#ifndef CRC8_SMBUS_TABLE_SIZE
+#define CRC8_SMBUS_TABLE_SIZE CRC_TABLE_SIZE
+#endif
+#if CRC8_SMBUS_TABLE_SIZE != 0 && CRC8_SMBUS_TABLE_SIZE != 16 && CRC8_SMBUS_TABLE_SIZE != 256
+#error "CRC8_SMBUS_TABLE_SIZE must be 0, 16 or 256"
+#endif
+/** @brief SMBUS initial remainder, with no final XOR. */
+#define CRC8_SMBUS_INITIAL_VALUE 0x00U
+
 #ifdef __AVR__
 #include <avr/pgmspace.h>
 /** @brief Table storage qualifier: PROGMEM on AVR, empty on other targets. */

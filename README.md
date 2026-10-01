@@ -2,12 +2,19 @@
 
 **CRC Forge** ist der Paketname dieser Library in den PlatformIO-Metadaten.
 
-Portable C++11-Library für CRC-8/SAE-J1850, CRC-8/AUTOSAR (H2F),
+Portable C++11-Library für CRC-8/SMBUS, CRC-8/SAE-J1850, CRC-8/AUTOSAR (H2F),
 CRC-16/IBM-3740 (CCITT-FALSE) und CRC-32/ISO-HDLC.
 Die Library benötigt weder Arduino noch dynamische Speicherallokation.
 Sie unterstützt synchrone, blockweise und schrittweise Berechnung.
 
 ## Installation mit PlatformIO
+
+Über die [PlatformIO Registry](https://registry.platformio.org/libraries/codename666/CRC%20Forge):
+
+```ini
+lib_deps = codename666/CRC Forge@^1.1.0
+```
+
 
 Das [GitHub-Repository](https://github.com/CodeName-666/CRC-Forge) kann direkt
 als PlatformIO-Abhängigkeit eingebunden werden:
@@ -43,6 +50,7 @@ const uint32_t value = Crc::calculate(algorithm, data, 9U);
 
 | Enum-Wert | Verfahren | Polynom | Init | RefIn/RefOut | XorOut | Prüfsumme für „123456789“ |
 | --- | --- | --- | --- | --- | --- | --- |
+| `CRC_8_SMBUS` | SMBUS (optional) | 0x07 | 0x00 | nein/nein | 0x00 | 0xF4 |
 | `CRC_8` | SAE-J1850 | 0x1D | 0xFF | nein/nein | 0xFF | 0x4B |
 | `CRC_8H2F` | AUTOSAR | 0x2F | 0xFF | nein/nein | 0xFF | 0xDF |
 | `CRC_16` | IBM-3740 / CCITT-FALSE | 0x1021 | 0xFFFF | nein/nein | 0 | 0x29B1 |
@@ -50,7 +58,7 @@ const uint32_t value = Crc::calculate(algorithm, data, 9U);
 
 CRC32 verwendet intern das reflektierte Polynom `0xEDB88320`.
 Die Bridge bietet außerdem `calculateCrc8()`, `calculateCrc8H2F()`,
-`calculateCrc16()` und `calculateCrc32()` für die gezielte statische Berechnung.
+`calculateCrc16()`, `calculateCrc32()` und `calculateCrc8Smbus()` für die gezielte statische Berechnung.
 
 ## Schrittweise in der Superloop
 
@@ -105,7 +113,7 @@ Das letzte verarbeitete Byte setzt unmittelbar `CRC_CALC_FINISHED`.
 ## CRC-Klassen direkt verwenden
 
 Für einen feststehenden Algorithmus kann die jeweilige Klasse ohne Bridge
-verwendet werden: `Crc8`, `Crc8H2F`, `Crc16` oder `Crc32`.
+verwendet werden: `Crc8`, `Crc8H2F`, `Crc8Smbus`, `Crc16` oder `Crc32`.
 
 ```cpp
 #include <src/Crc16.h>
@@ -157,10 +165,10 @@ Wert kein eindeutiger Fehlerindikator.
 ## CPU oder Tabellen konfigurieren
 
 Alle Einstellungen stehen in `Crc_Cfg.h` und können projektweit mit
-`build_flags` überschrieben werden. Standardmäßig sind alle vier Verfahren
-aktiv und verwenden Tabellen mit 256 Einträgen.
+`build_flags` überschrieben werden. Standardmäßig sind die vier bisherigen Verfahren
+aktiv (SMBUS ist deaktiviert) und verwenden Tabellen mit 256 Einträgen.
 
-| Einstellung | Berechnung | Tabellenspeicher für alle vier Verfahren |
+| Einstellung | Berechnung | Tabellenspeicher ohne SMBUS |
 | --- | --- | --- |
 | `CRC_TABLE_SIZE=0` | Acht bitweise Schritte je Byte | 0 Bytes |
 | `CRC_TABLE_SIZE=16` | Zwei Tabellenzugriffe je Byte | 128 Bytes |
@@ -179,6 +187,7 @@ build_flags =
 
 | Verfahren | Aktivierung mit 0 oder 1 | Individuelle Tabellengröße |
 | --- | --- | --- |
+| SMBUS | `CFG_CRC8_SMBUS_ENABLE` | `CRC8_SMBUS_TABLE_SIZE` |
 | CRC8 | `CFG_CRC8_ENABLE` | `CRC8_TABLE_SIZE` |
 | CRC8H2F | `CFG_CRC8H2F_ENABLE` | `CRC8H2F_TABLE_SIZE` |
 | CRC16 | `CFG_CRC16_ENABLE` | `CRC16_TABLE_SIZE` |
@@ -189,16 +198,60 @@ Verfahren werden einschließlich ihrer Tabellen nicht eingebunden. Direkte
 statische Berechnungen dieser Klassen dürfen dann nicht aufgerufen werden;
 die Bridge liefert 0 beziehungsweise bei `start()` den Wert `false`.
 
-Die ebenfalls unterstützten `CRCx_ENABLED`-Defines dürfen den
+Für die vier bisherigen Verfahren dürfen die ebenfalls unterstützten `CRCx_ENABLED`-Defines dürfen den
 `CFG_CRCx_ENABLE`-Werten nicht widersprechen. Ungültige Werte führen zu einem
 Compilerfehler. Einstellungen müssen für alle Übersetzungseinheiten gelten;
 ein lokales `#define` im Anwendungscode konfiguriert die separat kompilierte
 Library nicht.
 
+## CRC-8/SMBUS aktivieren
+
+Seit Version 1.1.0 ist SMBUS optional verfügbar. Die Standardkonfiguration
+bleibt unverändert; SMBUS muss projektweit aktiviert werden:
+
+```ini
+build_flags =
+    -DCFG_CRC8_SMBUS_ENABLE=1
+    -DCRC8_SMBUS_TABLE_SIZE=16
+```
+
+```cpp
+#include <Crc.h>
+
+const uint8_t data[] = "123456789";
+const uint32_t direct = Crc8Smbus::calculate(data, 9U); // F4
+const uint32_t bridged = Crc::calculate(CRC_8_SMBUS, data, 9U); // F4
+uint32_t blocks = Crc8Smbus::calculate(data, 4U);
+blocks = Crc8Smbus::calculate(data + 4U, 5U, blocks, false); // F4
+```
+
+SMBUS verwendet das Polynom `0x07`, Initialwert und abschließendes XOR `0x00`,
+ohne Reflexion. Es ist nicht mit ATM-HEC (XOR `0x55`) gleichzusetzen.
+Leere erste Blöcke ergeben `0x00`; leere Folgeblöcke erhalten die vorherige
+Prüfsumme innerhalb von acht Bits. Die Zustandsverwaltung entspricht den
+anderen Klassen. `CRC_8_SMBUS` hat den Wert 4; die bestehenden Enum-Werte bleiben erhalten.
+
+SMBUS besitzt eigene Tabellen für das Polynom `0x07`: 16 Einträge benötigen
+16 Bytes, 256 Einträge 256 Bytes. Ohne individuelle Einstellung gilt
+`CRC_TABLE_SIZE`. Im CPU-Modus wird keine SMBUS-Tabelle eingebunden; bei
+deaktiviertem SMBUS entfallen sowohl Implementierung als auch Tabellen.
+Die Tabellen werden vorab erzeugt und benötigen keine Laufzeitinitialisierung:
+
+```sh
+python scripts/generate_smbus_table.py
+```
+
+Die Auswahl der Parameter im gemeinsamen CRC8-Kern erfolgt zur Compilezeit.
+SAE-J1850 und AUTOSAR behalten ihre jeweiligen Polynome und Prüfsummen.
+Für PlotterLib kann ausschließlich SMBUS aktiviert werden. Welche Bytes zur
+Prüfsumme gehören, legt weiterhin das Protokoll der Anwendung fest.
+
 ## Aufbau und Embedded-Eigenschaften
 
 - `Crc.h` / `Crc.cpp`: Bridge mit Enum-Auswahl und direkter Weiterleitung an statische CRC-Funktionen.
-- `src/Crc8.*`, `src/Crc8H2F.*`, `src/Crc16.*`, `src/Crc32.*`: Rechenkerne und Tabellen.
+- `src/Crc8Smbus.*`, `src/Crc8.*`, `src/Crc8H2F.*`, `src/Crc16.*`, `src/Crc32.*`: Rechenkerne und Tabellen.
+- `src/Crc8Core.h`: gemeinsamer CRC8-Kern mit Polynom, Initialwert, XOR und Backend als Compilezeitparameter.
+- `src/Crc8Smbus.cpp`: direkt eingebettete, konstante SMBUS-Tabellen; auf AVR im Flash.
 - `src/CrcIf.h`: gemeinsame Konfiguration und Zustandsverwaltung als Template `CrcIf<Algorithm>`.
 - `Crc_Types.h`: `Algorithm_E`, `CalculationStatus_E`, `BufferConfiguration_T` und `CalculationState_T`, ohne Namespace oder Typaliase.
 - `Crc_Cfg.h`: Build-Konfiguration, Konstanten und abstrahierte Tabellenzugriffe.
@@ -226,6 +279,7 @@ Embedded-C/C++-Skill; eine MISRA-Zertifizierung wird nicht behauptet.
 | Beispiel | Inhalt | Umgebungen |
 | --- | --- | --- |
 | `examples/Basic` | CRC32 über `Algorithm_E`, synchrone und blockweise Referenzprüfung, danach `init()` / `start()` / `process()` | `native`, `uno_cpu`, `uno_small`, `uno_large`, `esp32` |
+| `examples/Smbus` | Nur SMBUS, direkte Klasse und drei Rechenarten; Prüfsumme F4 | `native`, `uno_cpu`, `uno_small`, `uno_large`, `esp32` |
 | `examples/Direct` | CRC16 ohne Bridge; andere Verfahren deaktiviert, Tabelle mit 16 Einträgen | `native`, `uno`, `esp32` |
 
 Arduino-Beispiele geben das Ergebnis einmalig mit 115200 Baud aus. Fehler
@@ -240,12 +294,16 @@ pio run -d examples/Basic
 pio run -d examples/Basic -e native -t exec
 pio run -d examples/Direct
 pio run -d examples/Direct -e native -t exec
-pio pkg pack -o CRCForge-1.0.0.tar.gz
+pio run -d examples/Smbus
+pio run -d examples/Smbus -e native -t exec
+pio pkg pack -o CRCForge-1.1.0.tar.gz
 ```
 
 Native Builds benötigen GCC/G++ im PATH. Die Tests decken Referenzwerte,
 Blockgrenzen, ungültige Eingaben, Zustandswechsel, Kopien sowie CPU-, Tabellen-
-und deaktivierte Konfigurationen ab. Builds ersetzen keinen Test auf echter
+und deaktivierte Konfigurationen ab. SMBUS wird zusätzlich für alle 65.536
+Kombinationen aus vorheriger CRC und Eingabebyte gegen eine unabhängige
+Polynomdivision geprüft; die Prüfung läuft für jedes aktivierte Backend. Builds ersetzen keinen Test auf echter
 Hardware.
 
 ## Lizenz

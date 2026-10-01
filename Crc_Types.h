@@ -16,7 +16,8 @@ enum Algorithm_E : uint8_t {
     CRC_8 = 0U, ///< CRC-8/SAE-J1850.
     CRC_8H2F,   ///< CRC-8/AUTOSAR.
     CRC_16,     ///< CRC-16/IBM-3740.
-    CRC_32      ///< CRC-32/ISO-HDLC.
+    CRC_32,     ///< CRC-32/ISO-HDLC.
+    CRC_8_SMBUS = 4U ///< CRC-8/SMBUS: polynomial 0x07, init/xor-out zero.
 };
 
 /**

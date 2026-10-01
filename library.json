@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
   "name": "CRC Forge",
-  "version": "1.0.0",
-  "description": "Heap-free embedded C++11 CRC library: CRC-8/SAE-J1850, CRC-8/AUTOSAR, CRC-16/IBM-3740 and CRC-32/ISO-HDLC. Choose bitwise, 16-entry or 256-entry table backends; use enum-based dispatch, direct algorithm classes, incremental blocks or cooperative byte-by-byte processing.",
+  "version": "1.1.0",
+  "description": "Heap-free CRC checksums for embedded C++11 on AVR and ESP32. Supports optional CRC-8/SMBUS, SAE-J1850, AUTOSAR, CRC-16/IBM-3740 and CRC-32/ISO-HDLC. Select bitwise or 16/256-entry table backends, with AVR flash tables, direct classes, enum dispatch and incremental or cooperative processing.",
   "keywords": [
     "crc",
     "checksum",
@@ -13,7 +13,8 @@
     "heap-free",
     "incremental",
     "lookup-table",
-    "autosar"
+    "autosar",
+    "smbus"
   ],
   "authors": [
     {
@@ -57,7 +58,9 @@
     ],
     "exclude": [
       "**/.pio/**",
-      "src/CrcIf.cpp"
+      "src/CrcIf.cpp",
+      "**/__pycache__/**",
+      "**/*.pyc"
     ]
   },
   "license": "MIT",

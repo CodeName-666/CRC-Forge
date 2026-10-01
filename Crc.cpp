@@ -13,9 +13,9 @@ void Crc::setType(Algorithm_E type) { reset(); mType = type; }
 
 bool Crc::isAlgorithmEnabled() const {
     const bool enabled[] = {CRC8_ENABLED != 0U, CRC8H2F_ENABLED != 0U,
-                            CRC16_ENABLED != 0U, CRC32_ENABLED != 0U};
+                            CRC16_ENABLED != 0U, CRC32_ENABLED != 0U, CFG_CRC8_SMBUS_ENABLE != 0U};
     const uint8_t index = static_cast<uint8_t>(mType);
-    return (index < 4U) && enabled[index];
+    return (index < 5U) && enabled[index];
 }
 uint32_t Crc::calculateBlock(const uint8_t* pData, uint32_t dataLen,
                               uint32_t startValue, bool firstCall) const {
@@ -90,7 +90,19 @@ uint32_t Crc::calculate(Algorithm_E type, const uint8_t* pData, uint32_t dataLen
         case CRC_8H2F: result = calculateCrc8H2F(pData, dataLen, firstCall, startValue); break;
         case CRC_16: result = calculateCrc16(pData, dataLen, firstCall, startValue); break;
         case CRC_32: result = calculateCrc32(pData, dataLen, firstCall, startValue); break;
+        case CRC_8_SMBUS: result = calculateCrc8Smbus(pData, dataLen, firstCall, startValue); break;
         default: break;
     }
+    return result;
+}
+
+uint8_t Crc::calculateCrc8Smbus(const uint8_t* pData, uint32_t dataLen,
+                             bool firstCall, uint32_t startValue) {
+    uint8_t result = 0U;
+#if CFG_CRC8_SMBUS_ENABLE == 1
+    result = static_cast<uint8_t>(Crc8Smbus::calculate(pData, dataLen, startValue, firstCall));
+#else
+    (void)pData; (void)dataLen; (void)firstCall; (void)startValue;
+#endif
     return result;
 }

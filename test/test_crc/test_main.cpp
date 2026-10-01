@@ -5,20 +5,20 @@
 #include <unity.h>
 
 static uint8_t message[] = "123456789";
-static const uint32_t expected[] = {0x4BU, 0xDFU, 0x29B1U, 0xCBF43926UL};
-static const bool enabled[] = {CRC8_ENABLED, CRC8H2F_ENABLED, CRC16_ENABLED, CRC32_ENABLED};
+static const uint32_t expected[] = {0x4BU, 0xDFU, 0x29B1U, 0xCBF43926UL, 0xF4U};
+static const bool enabled[] = {CRC8_ENABLED, CRC8H2F_ENABLED, CRC16_ENABLED, CRC32_ENABLED, CFG_CRC8_SMBUS_ENABLE};
 void setUp() {}
 void tearDown() {}
 
 void reference_vectors() {
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         TEST_ASSERT_EQUAL_HEX32(enabled[i] ? expected[i] : 0,
             Crc::calculate(static_cast<Algorithm_E>(i), message, 9));
     }
 }
 
 void every_split_preserves_crc() {
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         if (!enabled[i]) continue;
         for (unsigned split = 0; split <= 9; ++split) {
             const Algorithm_E type = static_cast<Algorithm_E>(i);
@@ -30,7 +30,7 @@ void every_split_preserves_crc() {
 }
 
 void cooperative_calculation() {
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         Crc crc;
         crc.setType(static_cast<Algorithm_E>(i));
         crc.setDataPtr(message);
@@ -52,7 +52,7 @@ void invalid_inputs_and_cancellation() {
     TEST_ASSERT_FALSE(crc.cancle());
     TEST_ASSERT_EQUAL_UINT32(0, Crc::calculate(CRC_32, 0, 9));
     TEST_ASSERT_EQUAL_UINT32(0, Crc::calculate(static_cast<Algorithm_E>(99), message, 9));
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         if (!enabled[i]) continue;
         crc.setType(static_cast<Algorithm_E>(i));
         crc.setDataPtr(message);
@@ -74,8 +74,8 @@ void binary_data_and_bytewise_continuation() {
     for (unsigned i = 0; i < 256; ++i) bytes[i] = static_cast<uint8_t>(i);
     // Independently calculated fixtures; CRC16/32 cross-checked with Python
     // binascii.crc_hqx and zlib.crc32 respectively.
-    const uint32_t binaryExpected[] = {0x05, 0x06, 0x3FBD, 0x29058C73UL};
-    for (unsigned i = 0; i < 4; ++i) {
+    const uint32_t binaryExpected[] = {0x05, 0x06, 0x3FBD, 0x29058C73UL, 0x14U};
+    for (unsigned i = 0; i < 5; ++i) {
         if (!enabled[i]) continue;
         const Algorithm_E type = static_cast<Algorithm_E>(i);
         TEST_ASSERT_EQUAL_HEX32(binaryExpected[i], Crc::calculate(type, bytes, 256));
@@ -92,8 +92,8 @@ void const_inputs_empty_blocks_and_direct_api() {
     TEST_ASSERT_EQUAL_HEX32(enabled[1] ? expected[1] : 0, Crc::calculateCrc8H2F(input, 9));
     TEST_ASSERT_EQUAL_HEX32(enabled[2] ? expected[2] : 0, Crc::calculateCrc16(input, 9));
     TEST_ASSERT_EQUAL_HEX32(enabled[3] ? expected[3] : 0, Crc::calculateCrc32(input, 9));
-    const uint32_t empty[] = {0, 0, 0xFFFF, 0};
-    for (unsigned i = 0; i < 4; ++i) {
+    const uint32_t empty[] = {0, 0, 0xFFFF, 0, 0};
+    for (unsigned i = 0; i < 5; ++i) {
         const Algorithm_E type = static_cast<Algorithm_E>(i);
         TEST_ASSERT_EQUAL_HEX32(enabled[i] ? empty[i] : 0, Crc::calculate(type, 0, 0));
         TEST_ASSERT_EQUAL_HEX32(enabled[i] ? expected[i] : 0,
@@ -110,7 +110,7 @@ void configured_api_and_cancel_alias() {
     crc.setDataLen(9);
     crc.setType(static_cast<Algorithm_E>(99));
     TEST_ASSERT_FALSE(crc.start());
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         if (!enabled[i]) continue;
         const Algorithm_E type = static_cast<Algorithm_E>(i);
         crc.setType(type);
@@ -198,6 +198,9 @@ void check_algorithm_instance(uint32_t expectedValue, uint32_t emptyValue) {
 }
 
 void subclass_instances() {
+#if CFG_CRC8_SMBUS_ENABLE == 1
+    check_algorithm_instance<Crc8Smbus>(0xF4U, 0U);
+#endif
 #if CRC8_ENABLED == CRC_ENABLED
     check_algorithm_instance<Crc8>(0x4B, 0);
 #endif
@@ -218,8 +221,8 @@ void bridge_switching_and_copying() {
     TEST_ASSERT_EQUAL(CRC_NO_CALC, initialStatus);
     crc.setDataPtr(message);
     crc.setDataLen(9);
-    for (unsigned from = 0; from < 5; ++from) {
-        for (unsigned to = 0; to < 5; ++to) {
+    for (unsigned from = 0; from < 6; ++from) {
+        for (unsigned to = 0; to < 6; ++to) {
             crc.setType(static_cast<Algorithm_E>(from));
             crc.start();
             crc.loop();
@@ -227,7 +230,7 @@ void bridge_switching_and_copying() {
             TEST_ASSERT_EQUAL_PTR(message, crc.getDataPtr());
             TEST_ASSERT_EQUAL_UINT32(9, crc.getDataLen());
             TEST_ASSERT_EQUAL(CRC_NO_CALC, crc.getStatus());
-            const bool available = to < 4 && enabled[to];
+            const bool available = to < 5 && enabled[to];
             TEST_ASSERT_EQUAL(available, crc.start());
             crc.loop();
             Crc copied(crc);
@@ -259,7 +262,7 @@ void shared_nonvirtual_interface() {
     CrcIf<Crc>& interface = bridge;
     interface.setDataPtr(message);
     interface.setDataLen(9);
-    for (unsigned i = 0; i < 4; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         bridge.setType(static_cast<Algorithm_E>(i));
         TEST_ASSERT_EQUAL(enabled[i], interface.start());
         for (unsigned byte = 0; byte < 9; ++byte) interface.loop();
@@ -271,7 +274,7 @@ void bounded_process_and_reinitialization() {
     static_assert(sizeof(Algorithm_E) == 1U, "Algorithm enum must use one byte");
     static_assert(sizeof(CalculationStatus_E) == 1U, "Status must use one byte");
     Crc calculator;
-    for (uint8_t type = 0U; type < 4U; ++type) {
+    for (uint8_t type = 0U; type < 5U; ++type) {
         calculator.setType(static_cast<Algorithm_E>(type));
         calculator.init(message, 9U);
         calculator.process();
@@ -294,9 +297,34 @@ void bounded_process_and_reinitialization() {
     }
 }
 
+/** @brief Independently divide a byte polynomial by x^8+x^2+x+1. */
+void smbus_exhaustive_update() {
+    TEST_ASSERT_EQUAL_HEX32(CFG_CRC8_SMBUS_ENABLE ? 0xF4U : 0U,
+        Crc::calculateCrc8Smbus(message, 9U));
+#if CFG_CRC8_SMBUS_ENABLE == 1
+    for (uint16_t seed = 0U; seed < 256U; ++seed) {
+        for (uint16_t value = 0U; value < 256U; ++value) {
+            const uint8_t input = static_cast<uint8_t>(value);
+            uint16_t dividend = static_cast<uint16_t>((seed ^ value) << 8U);
+            for (uint8_t bit = 0U; bit < 8U; ++bit) {
+                const uint16_t leading = static_cast<uint16_t>(0x8000U >> bit);
+                if ((dividend & leading) != 0U) {
+                    dividend = static_cast<uint16_t>(dividend ^ (0x107U << (7U - bit)));
+                }
+            }
+            TEST_ASSERT_EQUAL_HEX32(dividend, Crc8Smbus::calculate(&input, 1U, seed, false));
+        }
+    }
+    TEST_ASSERT_EQUAL_HEX32(0xABU, Crc8Smbus::calculate(nullptr, 0U, 0x12ABU, false));
+    TEST_ASSERT_EQUAL_HEX32(0U, Crc8Smbus::calculate(nullptr, 1U));
+    TEST_ASSERT_EQUAL_HEX32(0U, Crc8Smbus::calculate(nullptr, 0U));
+#endif
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(bounded_process_and_reinitialization);
+    RUN_TEST(smbus_exhaustive_update);
     RUN_TEST(reference_vectors);
     RUN_TEST(every_split_preserves_crc);
     RUN_TEST(cooperative_calculation);

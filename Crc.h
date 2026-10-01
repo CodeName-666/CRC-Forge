@@ -12,6 +12,9 @@
 #include "Crc_Cfg.h"
 #include "Crc_Types.h"
 #include "src/CrcIf.h"
+#if CFG_CRC8_SMBUS_ENABLE == 1
+#include "src/Crc8Smbus.h"
+#endif
 #if CRC8_ENABLED == CRC_ENABLED
 #include "src/Crc8.h"
 #endif
@@ -30,7 +33,7 @@
  * @class Crc
  * @brief Select a CRC algorithm at runtime using Algorithm_E.
  * @details Supports CRC-8/SAE-J1850, CRC-8/AUTOSAR (H2F),
- * CRC-16/IBM-3740 (CCITT-FALSE), and CRC-32/ISO-HDLC.
+ * CRC-16/IBM-3740 (CCITT-FALSE), CRC-32/ISO-HDLC and optional CRC-8/SMBUS.
  * Static methods calculate a complete buffer or continue a previous result.
  * CrcIf<Crc> owns the sole configuration and cooperative state. The bridge
  * selects the calculation using the enum and directly calls algorithm functions.
@@ -267,6 +270,18 @@ public:
      */
     static uint32_t calculate(Algorithm_E type, const uint8_t* pData, uint32_t dataLen,
         bool firstCall = true, uint32_t startValue = CRC_START_VALUE);
+
+    /**
+     * @brief Calculate or continue CRC-8/SMBUS (poly 0x07, init/xor-out 0).
+     * @param[in] pData Readable bytes, or nullptr for an empty block.
+     * @param[in] dataLen Byte count.
+     * @param[in] firstCall True starts a message; false continues startValue.
+     * @param[in] startValue Previous finalized CRC, ignored on the first call.
+     * @return CRC (check value 0xF4), or zero for invalid input or a disabled variant.
+     * @note Empty first blocks return zero; empty continuations preserve the low byte.
+     */
+    static uint8_t calculateCrc8Smbus(const uint8_t* pData, uint32_t dataLen,
+        bool firstCall = true, uint32_t startValue = 0U);
 
 private:
     friend class CrcIf<Crc>;
