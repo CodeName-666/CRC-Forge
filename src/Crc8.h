@@ -1,47 +1,79 @@
-/*
- * Crc8.h
- *
- *  Created on: 22.10.2017
- *      Author: AP02
+/**
+ * @file Crc8.h
+ * @note Target: 8-bit AVR and 32-bit ESP32, restricted C++11, integer arithmetic only.
+ * @note Not ISR-safe: call from a superloop or task; synchronize shared instances externally.
+ * @brief CRC-8/SAE-J1850 calculation with the shared nonvirtual lifecycle interface.
+ * @author Christof Seidel
  */
+#ifndef CRC8_H
+#define CRC8_H
 
-#ifndef _CRC8_H_
-#define _CRC8_H_
-
+#include "../Crc_Cfg.h"
 #include "CrcIf.h"
 
+/** @brief Non-reflected generator polynomial used by this algorithm. */
+#define CRC8_POLYNOMIAL 0x1DU
 
-/** @brief SAE J1850 CRC8 polynomial
- *
- * According to AUTOSAR R4.0 CRC SWS CRC030
- */
-#define CRC8_POLYNOMIAL                                        0x1DU
-
-
-#define CRC8_TABLE_SIZE                CRC_LARGE_TABLE_CALCULATION
-
-
-#if !defined(CRC8_TABLE_SIZE)
 /**
- *  \brief Number of elements in CRC8 lookup table
- *
- * If size is 0 table based calculation is deactivated. */
-#define CRC8_TABLE_SIZE                CRC_LARGE_TABLE_CALCULATION
-#endif
+ * @brief Configurable CRC-8/SAE-J1850 calculator with direct static computation.
+ * @details Polynomial 0x1D, initial value 0xFF, final XOR 0xFF.
+ * The check value for "123456789" is 0x4B.
+ * CRC8_TABLE_SIZE selects CPU, 16-entry or 256-entry calculation at compile time.
+ * Inherits buffer configuration, status, start(), loop(), get(), and cancel()
+ * from CrcIf<Crc8>. All calls are nonvirtual and require no dynamic storage.
+ * Static calculations operate without an instance and do not change progress.
+ * @note The input buffer is borrowed. Keep it valid and unchanged while processing.
+ * @see CrcIf for detailed lifecycle contracts and thread-safety requirements.
+ */
+class Crc8 : public CrcIf<Crc8> {
+public:
+    /**
+     * @brief Construct an idle calculator with optional borrowed input.
+     * @param[in] pData Input buffer; may be null before configuration.
+     * @param[in] dataLen Number of readable bytes; cooperative start() rejects zero.
+     */
+    Crc8(uint8_t* pData = 0, uint32_t dataLen = 0) : CrcIf<Crc8>(pData, dataLen) {}
 
-class Crc8 : public CrcIf
-{
-   public:
-      Crc8();
-      virtual ~Crc8();
-      uint32_t calculate(uint8* dataPtr, uint32 dataLength, uint8 startValue = CRC8_INITIAL_VALUE, boolean isFirstCall = true);
-   private:
-      uint32_t calculateToRunntime    (uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue = CRC8_INITIAL_VALUE,  boolean isFirstCall = true );
-      uint32_t calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue = CRC8_INITIAL_VALUE,  boolean isFirstCall = true );
-      uint32_t calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint8_t startValue = CRC8_INITIAL_VALUE,  boolean isFirstCall = true );
+    /**
+     * @brief Calculate the configured buffer synchronously as a complete message.
+     * @return Finalized CRC; cooperative progress remains unchanged.
+     * @see CrcIf::calculate() for empty-buffer and invalid-input behavior.
+     */
+    uint32_t calculate() const { return CrcIf<Crc8>::calculate(); }
 
+    /**
+     * @brief Calculate or continue a CRC-8/SAE-J1850 checksum.
+     * @param[in] pData Buffer containing at least dataLength readable bytes.
+     * May be null for an empty block. Input bytes are never modified.
+     * @param[in] dataLength Number of bytes to process.
+     * @param[in] startValue Previously returned finalized CRC; only its low 8
+     * bits are used. Ignored when isFirstCall is true.
+     * @param[in] isFirstCall True uses the fixed initial value 0xFF; false restores
+     * the internal remainder from the supplied previous checksum.
+     * @return Finalized 8-bit CRC, zero-extended to uint32_t; returns zero
+     * for a null pointer with nonzero dataLength.
+     * @details Empty first blocks return zero. Empty continuation blocks
+     * return the supplied checksum masked to the algorithm width.
+     * @note Argument order differs from the Crc static wrappers: startValue precedes
+     * isFirstCall here. Zero is also a valid checksum, not a unique error code.
+     */
+    static uint32_t calculate(const uint8_t* pData, uint32_t dataLength, uint32_t startValue = CRC8_INITIAL_VALUE, bool isFirstCall = true);
+
+private:
+    friend class CrcIf<Crc8>;
+    /** @brief Report compile-time availability. @return True when this algorithm is enabled. */
+    bool isAlgorithmEnabled() const { return CRC8_ENABLED == CRC_ENABLED; }
+    /**
+     * @brief Bind the shared lifecycle to this concrete static calculation.
+     * @param[in] pData Readable input buffer.
+     * @param[in] dataLen Number of input bytes.
+     * @param[in] startValue Previous finalized CRC, ignored for a first block.
+     * @param[in] firstCall True initializes a complete message; false continues it.
+     * @return Finalized checksum for the supplied block.
+     */
+    uint32_t calculateBlock(const uint8_t* pData, uint32_t dataLen,
+                            uint32_t startValue, bool firstCall) const {
+        return Crc8::calculate(pData, dataLen, startValue, firstCall);
+    }
 };
 #endif
-
-
-

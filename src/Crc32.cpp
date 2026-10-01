@@ -1,11 +1,14 @@
-/*
- * Crc32.cpp
- *
- *  Created on: 22.10.2017
- *      Author: AP02
+/**
+ * @file Crc32.cpp
+ * @brief CRC-32/ISO-HDLC bitwise and lookup-table implementation.
+ * @author Christof Seidel
  */
 
 #include "Crc32.h"
+#include <stddef.h>
+
+#if CRC32_ENABLED == CRC_ENABLED
+
 
 
 
@@ -13,108 +16,55 @@
 
 /* Table of pre-computed reflected values for CRC32. Used Polynomial is
  * 0x04c11db7 */
-extern const uint32_t Crc32_Table[CRC32_TABLE_SIZE];
+extern const uint32_t Crc32_Table[CRC32_TABLE_SIZE] CRC_TABLE_STORAGE;
 #endif
 
-
-
-Crc32::Crc32()
+/**
+ * @details CRC32_TABLE_SIZE selects the backend at compile time.
+ * The 16-entry backend performs two nibble lookups per byte; the 256-entry
+ * backend performs one byte lookup. CPU mode performs eight polynomial steps
+ * per byte and stores no lookup table. AVR reads use program-memory macros.
+ */
+uint32_t Crc32::calculate(const uint8_t* pData, uint32_t dataLength,
+                            uint32_t seed, bool isFirstCall)
 {
-   // TODO Auto-generated constructor stub
-
-}
-
-Crc32::~Crc32()
-{
-   // TODO Auto-generated destructor stub
-}
-
-
-
-
-uint32_t Crc32::calculate(uint8_t* dataPtr,
-                          uint32_t dataLength,
-                          uint32_t startValue,
-                          boolean isFirstCall
-                         )
-{
-#if (CRC32_TABLE_SIZE == CRC_SYSTEM_CALCULATION)
-   uint8_t i; /* loop counter */
+    uint32_t result = 0U;
+    if ((pData != nullptr) || (dataLength == 0U)) {
+        uint32_t remainder = isFirstCall ? static_cast<uint32_t>(CRC32_INITIAL_VALUE)
+            : static_cast<uint32_t>(M_CRC_XOR(seed, CRC32_INITIAL_VALUE));
+        while (dataLength != 0U) {
+#if CRC32_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION
+            remainder = M_CRC_XOR(M_CRC_READ32(Crc32_Table[M_CRC_AND(M_CRC_XOR(remainder, *pData), 0x0FU)]), M_CRC_SHIFT_RIGHT(remainder, 4U));
+            remainder = M_CRC_XOR(M_CRC_READ32(Crc32_Table[M_CRC_AND(M_CRC_XOR(remainder, M_CRC_SHIFT_RIGHT(*pData, 4U)), 0x0FU)]), M_CRC_SHIFT_RIGHT(remainder, 4U));
+#elif CRC32_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION
+            remainder = M_CRC_XOR(M_CRC_READ32(Crc32_Table[M_CRC_AND(M_CRC_XOR(remainder, *pData), 0xFFU)]), M_CRC_SHIFT_RIGHT(remainder, 8U));
+#else
+            remainder = M_CRC_XOR(remainder, *pData);
+            for (uint8_t bit = 0U; bit < 8U; ++bit) {
+                const bool carry = M_CRC_AND(remainder, 1U) != 0U;
+                remainder = M_CRC_SHIFT_RIGHT(remainder, 1U);
+                if (carry) {
+                    remainder = M_CRC_XOR(remainder, CRC32_POLYNOMIAL);
+                }
+            }
 #endif
-
-   startValue = firstCall(isFirstCall,startValue);
-   /* Process all data byte-wise */
-   while (dataLength != 0U)
-   {
-#if (CRC32_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION) /* CRC32 generation via small table */
-
-      /* Process low nibble of actual data */
-      startValue
-      = Crc32_Table[0x0FU & (startValue ^ *dataPtr)]
-      ^ (startValue >> 4U);
-
-      /* Process high nibble of actual data */
-      startValue
-      = Crc32_Table[
-      0x0FU & (startValue ^ ((uint32)*dataPtr >> 4U))]
-      ^ (startValue >> 4U);
-
-#elif (CRC32_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION) /* CRC32 generation via large table */
-
-      /* Process one byte of data */
-      startValue
-      = Crc32_Table[((uint8)startValue) ^ *dataPtr]
-      ^ (startValue >> 8U);
-
-#else /* CRC32 generation at runtime */
-
-      startValue ^= *dataPtr;
-
-      /* calculate crc bit by bit */
-      for (i = 0U; i < 8U; ++i)
-      {
-         /* Test value uf the lowest bit.  Note that the CRC32 works on
-          * reflected data in contrast to CRC8 and CRC16 and does therfore
-          * start with the least significant bit. */
-         if ((startValue & 1U) == 0U)
-         {
-            /* no need to xor with the polynomial, just shift */
-            startValue >>= 1U;
-         }
-         else
-         {
-            /* bit was set to one: xor it with the reflected CRC32
-             * polynomial */
-            startValue = (startValue >> 1U) ^ CRC32_POLYNOMIAL;
-         }
-      }
-
-#endif
-
-      /* Advance the pointer and decrease remaining bytes to calculate over
-       * until all bytes in the buffer have been used as input */
-      /* Deviation MISRA-1 */
-      ++dataPtr;
-      --dataLength;
-   } /* while (Crc_Length != 0U) */
-
-   /* The reflection of the remainder is not necessary here as we used the
-    * "reflected" algorithm and reflected table values. */
-
-   startValue ^= 0xFFFFFFFFU; /* XOR crc value */
-
-   return startValue;
+            ++pData;
+            --dataLength;
+        }
+        result = static_cast<uint32_t>(M_CRC_XOR(remainder, CRC32_INITIAL_VALUE));
+    }
+    return result;
 }
-
-
-
-
 
 #if (CRC32_TABLE_SIZE != CRC_SYSTEM_CALCULATION) /* CRC32 generation via table */
 
-/* Table of pre-computed reflected values for CRC32. Used Polynomial is
- * 0x04c11db7 */
-const uint32_t Crc32_Table[CRC32_TABLE_SIZE] =
+/**
+ * @brief Precomputed polynomial remainders for the selected table backend.
+ * @details Small tables advance four bits per lookup; large tables advance
+ * eight. The array is omitted entirely in CPU mode. CRC_TABLE_STORAGE places
+ * the constant entries in program memory on AVR to preserve RAM.
+ */
+const uint32_t Crc32_Table[CRC32_TABLE_SIZE] CRC_TABLE_STORAGE =
 {
 #if (CRC32_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION)
    0x00000000U, 0x1DB71064U, 0x3B6E20C8U, 0x26D930ACU, 0x76DC4190U,
@@ -177,5 +127,7 @@ const uint32_t Crc32_Table[CRC32_TABLE_SIZE] =
 #endif
 };
 
-
 #endif /* CRC_32_TABLE_SIZE > 0U */
+
+
+#endif // CRC32_ENABLED

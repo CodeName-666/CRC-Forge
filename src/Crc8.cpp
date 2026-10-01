@@ -1,107 +1,75 @@
-/*
- * Crc8.cpp
- *
- *  Created on: 22.10.2017
- *      Author: AP02
+/**
+ * @file Crc8.cpp
+ * @brief CRC-8/SAE-J1850 bitwise and lookup-table implementation.
+ * @author Christof Seidel
  */
 
 #include "Crc8.h"
+#include <stddef.h>
+
+#if CRC8_ENABLED == CRC_ENABLED
+
 
 
 
 #if (CRC8_TABLE_SIZE > 0U) /* CRC8 generation via table */
 
 /* Table of pre-computed values for CRC8 */
-extern const uint8_t Crc8_Table[CRC8_TABLE_SIZE];
+extern const uint8_t Crc8_Table[CRC8_TABLE_SIZE] CRC_TABLE_STORAGE;
 #endif
 
-
-Crc8::Crc8()
+/**
+ * @details CRC8_TABLE_SIZE selects the backend at compile time.
+ * The 16-entry backend performs two nibble lookups per byte; the 256-entry
+ * backend performs one byte lookup. CPU mode performs eight polynomial steps
+ * per byte and stores no lookup table. AVR reads use program-memory macros.
+ */
+uint32_t Crc8::calculate(const uint8_t* pData, uint32_t dataLength,
+                            uint32_t seed, bool isFirstCall)
 {
-   // TODO Auto-generated constructor stub
-
-}
-
-Crc8::~Crc8()
-{
-   // TODO Auto-generated destructor stub
-}
-
-
-
-
-uint32_t Crc8::calculate(uint8* dataPtr, uint32 dataLength,
-                        uint8 startValue, boolean isFirstCall)
-{
-
-#if (CRC8_TABLE_SIZE == CRC_SYSTEM_CALCULATION)
-   uint8_t i; /* loop counter */
+    uint32_t result = 0U;
+    if ((pData != nullptr) || (dataLength == 0U)) {
+        uint8_t remainder = isFirstCall ? static_cast<uint8_t>(CRC8_INITIAL_VALUE)
+            : static_cast<uint8_t>(M_CRC_XOR(seed, CRC8_INITIAL_VALUE));
+        while (dataLength != 0U) {
+#if CRC8_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION
+            remainder = static_cast<uint8_t>(M_CRC_XOR(
+                M_CRC_READ8(Crc8_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 4U), M_CRC_SHIFT_RIGHT(*pData, 4U))]),
+                M_CRC_SHIFT_LEFT(remainder, 4U)));
+            remainder = static_cast<uint8_t>(M_CRC_XOR(
+                M_CRC_READ8(Crc8_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 4U), M_CRC_AND(*pData, 0x0FU))]),
+                M_CRC_SHIFT_LEFT(remainder, 4U)));
+#elif CRC8_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION
+            remainder = static_cast<uint8_t>(M_CRC_XOR(
+                M_CRC_READ8(Crc8_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 0U), *pData)]),
+                M_CRC_SHIFT_LEFT(remainder, 8U)));
+#else
+            remainder = static_cast<uint8_t>(M_CRC_XOR(remainder, M_CRC_SHIFT_LEFT(*pData, 0U)));
+            for (uint8_t bit = 0U; bit < 8U; ++bit) {
+                const bool carry = M_CRC_AND(remainder, 0x80U) != 0U;
+                remainder = static_cast<uint8_t>(M_CRC_SHIFT_LEFT(remainder, 1U));
+                if (carry) {
+                    remainder = static_cast<uint8_t>(M_CRC_XOR(remainder, CRC8_POLYNOMIAL));
+                }
+            }
 #endif
-
-   startValue = firstCall(isFirstCall,startValue);
-
-   /* Process all data (byte wise) */
-   while (dataLength != 0U) {
-#if (CRC8_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION) /* CRC8 generation with small table */
-
-      /* Process high nibble of data byte */
-      startValue
-      = Crc8_Table[
-      ((uint8)(startValue >> 4U)) ^ ((uint8)(*dataPtr >> 4U))]
-      ^ ((uint8)(startValue << 4U));
-
-      /* Process low nibble of data byte */
-      startValue
-      = Crc8_Table[
-      ((uint8)(startValue >> 4U)) ^ (*dataPtr & 0x0FU)]
-      ^ ((uint8)(startValue << 4U));
-
-#elif (CRC8_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION) /* CRC8 generation with large table */
-
-      startValue = Crc8_Table[startValue ^ *dataPtr];
-
-#else /* CRC8 generation at runtime */
-
-      startValue ^= *dataPtr;
-
-      /* calculate crc bit by bit */
-      for (i = 0U; i < 8U; ++i) {
-         /* if highest bit set to zero */
-         if ((startValue & 0x80U) == 0U) {
-            /* no need to xor with the polynomial, just shift */
-            startValue <<= 1U;
-         } else {
-            /* bit was set to one: xor it with the CRC8 polynomial */
-            startValue = ((uint8) (startValue << 1U))
-                  ^ CRC8_POLYNOMIAL;
-         }
-      }
-
-#endif
-
-      /* Advance the pointer and decrease remaining bytes to calculate over
-       * until all bytes in the buffer have been used as input */
-      /* Deviation MISRA-1 */
-      ++dataPtr;
-      --dataLength;
-   } /* while (Crc_Length != 0) */
-
-   /* Note that the Autosar R3.1 CRC SWS specifies a xor value of 0 which is
-    * wrong.  The Autosar R4.0 CRC SWS specifies the corrected xor value of
-    * 0xFF. */
-   startValue ^= 0xFFU; /* XOR crc value */
-
-   return startValue;
+            ++pData;
+            --dataLength;
+        }
+        result = static_cast<uint32_t>(M_CRC_XOR(remainder, CRC8_INITIAL_VALUE));
+    }
+    return result;
 }
-
-
-
-
 
 #if (CRC8_TABLE_SIZE != CRC_SYSTEM_CALCULATION) /* CRC8 generation via table */
 
-/* Table of pre-computed values for CRC8 */
-const uint8_t Crc8_Table[CRC8_TABLE_SIZE] =
+/**
+ * @brief Precomputed polynomial remainders for the selected table backend.
+ * @details Small tables advance four bits per lookup; large tables advance
+ * eight. The array is omitted entirely in CPU mode. CRC_TABLE_STORAGE places
+ * the constant entries in program memory on AVR to preserve RAM.
+ */
+const uint8_t Crc8_Table[CRC8_TABLE_SIZE] CRC_TABLE_STORAGE =
 {
    0x00U, 0x1DU, 0x3AU, 0x27U, 0x74U, 0x69U, 0x4EU, 0x53U, 0xE8U, 0xF5U, 0xD2U,
    0xCFU, 0x9CU, 0x81U, 0xA6U, 0xBBU,
@@ -132,3 +100,6 @@ const uint8_t Crc8_Table[CRC8_TABLE_SIZE] =
 };
 #endif  /* CRC8_TABLE_SIZE > 0U */
 
+
+
+#endif // CRC8_ENABLED

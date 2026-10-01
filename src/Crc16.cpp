@@ -1,116 +1,75 @@
-/*
- * Crc16.cpp
- *
- *  Created on: 22.10.2017
- *      Author: AP02
+/**
+ * @file Crc16.cpp
+ * @brief CRC-16/IBM-3740 bitwise and lookup-table implementation.
+ * @author Christof Seidel
  */
 
 #include "Crc16.h"
+#include <stddef.h>
+
+#if CRC16_ENABLED == CRC_ENABLED
+
+
 
 
 #if (CRC16_TABLE_SIZE > 0U) /* CRC16 generation via table */
 
 /* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-extern const uint16_t Crc16_Table[CRC16_TABLE_SIZE];
+extern const uint16_t Crc16_Table[CRC16_TABLE_SIZE] CRC_TABLE_STORAGE;
 #endif
 
-
-
-
-Crc16::Crc16()
+/**
+ * @details CRC16_TABLE_SIZE selects the backend at compile time.
+ * The 16-entry backend performs two nibble lookups per byte; the 256-entry
+ * backend performs one byte lookup. CPU mode performs eight polynomial steps
+ * per byte and stores no lookup table. AVR reads use program-memory macros.
+ */
+uint32_t Crc16::calculate(const uint8_t* pData, uint32_t dataLength,
+                            uint32_t seed, bool isFirstCall)
 {
-   // TODO Auto-generated constructor stub
-
-}
-
-Crc16::~Crc16()
-{
-   // TODO Auto-generated destructor stub
-}
-
-
-uint32_t Crc16::calculate(uint8_t* dataPtr,
-                        uint32_t dataLength,
-                        uint16_t startValue,
-                        boolean isFirstCall
-                       )
-{
-#if (CRC16_TABLE_SIZE == CRC_SYSTEM_CALCULATION)
-   uint8_t i; /* loop counter */
+    uint32_t result = 0U;
+    if ((pData != nullptr) || (dataLength == 0U)) {
+        uint16_t remainder = isFirstCall ? static_cast<uint16_t>(CRC16_INITIAL_VALUE)
+            : static_cast<uint16_t>(M_CRC_XOR(seed, 0U));
+        while (dataLength != 0U) {
+#if CRC16_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION
+            remainder = static_cast<uint16_t>(M_CRC_XOR(
+                M_CRC_READ16(Crc16_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 12U), M_CRC_SHIFT_RIGHT(*pData, 4U))]),
+                M_CRC_SHIFT_LEFT(remainder, 4U)));
+            remainder = static_cast<uint16_t>(M_CRC_XOR(
+                M_CRC_READ16(Crc16_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 12U), M_CRC_AND(*pData, 0x0FU))]),
+                M_CRC_SHIFT_LEFT(remainder, 4U)));
+#elif CRC16_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION
+            remainder = static_cast<uint16_t>(M_CRC_XOR(
+                M_CRC_READ16(Crc16_Table[M_CRC_XOR(M_CRC_SHIFT_RIGHT(remainder, 8U), *pData)]),
+                M_CRC_SHIFT_LEFT(remainder, 8U)));
+#else
+            remainder = static_cast<uint16_t>(M_CRC_XOR(remainder, M_CRC_SHIFT_LEFT(*pData, 8U)));
+            for (uint8_t bit = 0U; bit < 8U; ++bit) {
+                const bool carry = M_CRC_AND(remainder, 0x8000U) != 0U;
+                remainder = static_cast<uint16_t>(M_CRC_SHIFT_LEFT(remainder, 1U));
+                if (carry) {
+                    remainder = static_cast<uint16_t>(M_CRC_XOR(remainder, CRC16_POLYNOMIAL));
+                }
+            }
 #endif
-
-   startValue = (uint16_t)firstCall(isFirstCall,startValue);
-   /* Process all data (byte wise) */
-   while (dataLength != 0U)
-   {
-#if (CRC16_TABLE_SIZE == CRC_SMALL_TABLE_CALCULATION) /* CRC16 generation with small table */
-
-      /* Process high nibble of actual data */
-      startValue
-      = Crc16_Table[
-      ((uint8)(startValue >> 12U)) ^ ((uint8)(*dataPtr >> 4U))]
-      ^ ((uint16)(startValue << 4U));
-
-      /* Process low nibble of actual data */
-      startValue
-      = Crc16_Table[
-      ((uint8)(startValue >> 12U)) ^ (*dataPtr & 0x0FU)]
-      ^ ((uint16)(startValue << 4U));
-
-#elif (CRC16_TABLE_SIZE == CRC_LARGE_TABLE_CALCULATION) /* CRC16 generation with large table */
-
-      /* Process one byte of data */
-      startValue
-      = Crc16_Table[((uint8)(startValue >> 8U)) ^ *dataPtr]
-      ^ ((uint16)(startValue << 8U));
-
-#else /* CRC16 generation at runtime */
-
-      startValue ^= (uint16)(((uint16)*dataPtr) << 8U);
-
-      /* calculate crc bit by bit */
-      for (i = 0U; i < 8U; ++i)
-      {
-         /* if highest bit set to zero */
-         if ((startValue & 0x8000U) == 0U)
-         {
-            /* no need to xor the zero bit with the polynomial, just shift */
-            startValue <<= 1U;
-         }
-         else
-         {
-            /* bit was set to one: xor it with the CRC16 polynomial */
-            startValue
-            = ((uint16)(startValue << 1U)) ^ CRC16_POLYNOMIAL;
-         }
-      }
-
-#endif
-
-      /* Advance the pointer and decrease remaining bytes to calculate over
-       * until all bytes in the buffer have been used as input */
-      dataPtr++;
-      dataLength--;
-   } /* while (Crc_Length != 0U) */
-
-   /* specified final XOR value for CRC16 is 0, no need to actually xor
-    * anything here */
-   return startValue;
+            ++pData;
+            --dataLength;
+        }
+        result = static_cast<uint32_t>(M_CRC_XOR(remainder, 0U));
+    }
+    return result;
 }
-
-
-
-
-//uint32_t Crc16::calculateToRunntime(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
-//uint32_t Crc16::calculateWithSmallTabel(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
-//uint32_t Crc16::calculateWithLargeTabel(uint8_t* dataPtr, uint32_t dataLength, uint16_t startValue = true, boolean isFirstCall = CRC16_INITIAL_VALUE );
-
-
 
 #if (CRC16_TABLE_SIZE != CRC_SYSTEM_CALCULATION) /* CRC16 generation via table */
 
-/* Table of pre-computed values for CRC16. Used Polynomial is 0x1021 */
-const uint16_t Crc16_Table[CRC16_TABLE_SIZE] =
+/**
+ * @brief Precomputed polynomial remainders for the selected table backend.
+ * @details Small tables advance four bits per lookup; large tables advance
+ * eight. The array is omitted entirely in CPU mode. CRC_TABLE_STORAGE places
+ * the constant entries in program memory on AVR to preserve RAM.
+ */
+const uint16_t Crc16_Table[CRC16_TABLE_SIZE] CRC_TABLE_STORAGE =
 {
    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
@@ -148,7 +107,8 @@ const uint16_t Crc16_Table[CRC16_TABLE_SIZE] =
 #endif
 };
 
-
 #endif
 
 
+
+#endif // CRC16_ENABLED

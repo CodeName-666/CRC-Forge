@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
+  "name": "CRC Forge",
+  "version": "1.0.0",
+  "description": "Heap-free embedded C++11 CRC library: CRC-8/SAE-J1850, CRC-8/AUTOSAR, CRC-16/IBM-3740 and CRC-32/ISO-HDLC. Choose bitwise, 16-entry or 256-entry table backends; use enum-based dispatch, direct algorithm classes, incremental blocks or cooperative byte-by-byte processing.",
+  "keywords": [
+    "crc",
+    "checksum",
+    "crc8",
+    "crc16",
+    "crc32",
+    "embedded",
+    "heap-free",
+    "incremental",
+    "lookup-table",
+    "autosar"
+  ],
+  "authors": [
+    {
+      "name": "Christof Seidel"
+    }
+  ],
+  "frameworks": "*",
+  "platforms": "*",
+  "headers": [
+    "Crc.h"
+  ],
+  "build": {
+    "srcDir": ".",
+    "includeDir": ".",
+    "srcFilter": "-<*> +<Crc.cpp> +<src/*.cpp>",
+    "flags": [
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-Wall",
+      "-Wextra",
+      "-Wconversion",
+      "-Wsign-conversion",
+      "-Wundef",
+      "-Werror"
+    ]
+  },
+  "export": {
+    "include": [
+      "Crc.h",
+      "Crc.cpp",
+      "Crc_Cfg.h",
+      "Crc_Types.h",
+      "src",
+      "examples",
+      "test",
+      "platformio.ini",
+      "README.md",
+      "library.json",
+      "scripts",
+      "LICENSE"
+    ],
+    "exclude": [
+      "**/.pio/**",
+      "src/CrcIf.cpp"
+    ]
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CodeName-666/CRC-Forge.git"
+  },
+  "homepage": "https://github.com/CodeName-666/CRC-Forge"
+}
