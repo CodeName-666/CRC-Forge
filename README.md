@@ -12,7 +12,7 @@ Sie unterstützt synchrone, blockweise und schrittweise Berechnung.
 Über die [PlatformIO Registry](https://registry.platformio.org/libraries/codename666/CRC%20Forge):
 
 ```ini
-lib_deps = codename666/CRC Forge@^1.1.0
+lib_deps = codename666/CRC Forge@^1.1.1
 ```
 
 
@@ -48,13 +48,26 @@ const uint32_t value = Crc::calculate(algorithm, data, 9U);
 // value == 0xCBF43926
 ```
 
-| Enum-Wert | Verfahren | Polynom | Init | RefIn/RefOut | XorOut | Prüfsumme für „123456789“ |
-| --- | --- | --- | --- | --- | --- | --- |
-| `CRC_8_SMBUS` | SMBUS (optional) | 0x07 | 0x00 | nein/nein | 0x00 | 0xF4 |
-| `CRC_8` | SAE-J1850 | 0x1D | 0xFF | nein/nein | 0xFF | 0x4B |
-| `CRC_8H2F` | AUTOSAR | 0x2F | 0xFF | nein/nein | 0xFF | 0xDF |
-| `CRC_16` | IBM-3740 / CCITT-FALSE | 0x1021 | 0xFFFF | nein/nein | 0 | 0x29B1 |
-| `CRC_32` | ISO-HDLC | 0x04C11DB7 | 0xFFFFFFFF | ja/ja | 0xFFFFFFFF | 0xCBF43926 |
+| Enum-Wert | Verfahren | Prüfsumme |
+| --- | --- | --- |
+| `CRC_8_SMBUS` | SMBUS (optional) | `0xF4` |
+| `CRC_8` | SAE-J1850 | `0x4B` |
+| `CRC_8H2F` | AUTOSAR | `0xDF` |
+| `CRC_16` | IBM-3740 / CCITT-FALSE | `0x29B1` |
+| `CRC_32` | ISO-HDLC | `0xCBF43926` |
+
+Die Prüfsummen gelten für die neun ASCII-Bytes von `123456789`, ohne Nullterminator.
+
+| Verfahren | Polynom | Initialwert | Abschließendes XOR |
+| --- | --- | --- | --- |
+| SMBUS | `0x07` | `0x00` | `0x00` |
+| SAE-J1850 | `0x1D` | `0xFF` | `0xFF` |
+| AUTOSAR | `0x2F` | `0xFF` | `0xFF` |
+| IBM-3740 | `0x1021` | `0xFFFF` | `0x0000` |
+| ISO-HDLC | `0x04C11DB7` | `0xFFFFFFFF` | `0xFFFFFFFF` |
+
+Nur CRC-32/ISO-HDLC reflektiert Eingabe und Ausgabe (`RefIn = RefOut = true`).
+Bei den anderen vier Verfahren sind beide Werte `false`.
 
 CRC32 verwendet intern das reflektierte Polynom `0xEDB88320`.
 Die Bridge bietet außerdem `calculateCrc8()`, `calculateCrc8H2F()`,
@@ -168,14 +181,32 @@ Alle Einstellungen stehen in `Crc_Cfg.h` und können projektweit mit
 `build_flags` überschrieben werden. Standardmäßig sind die vier bisherigen Verfahren
 aktiv (SMBUS ist deaktiviert) und verwenden Tabellen mit 256 Einträgen.
 
-| Einstellung | Berechnung | Tabellenspeicher ohne SMBUS |
-| --- | --- | --- |
-| `CRC_TABLE_SIZE=0` | Acht bitweise Schritte je Byte | 0 Bytes |
-| `CRC_TABLE_SIZE=16` | Zwei Tabellenzugriffe je Byte | 128 Bytes |
-| `CRC_TABLE_SIZE=256` | Ein Tabellenzugriff je Byte | 2048 Bytes |
+| `CRC_TABLE_SIZE` | Berechnung je Eingabebyte |
+| --- | --- |
+| `0` | Acht bitweise Schritte, keine Tabelle |
+| `16` | Zwei Zugriffe auf eine Tabelle mit 16 Einträgen |
+| `256` | Ein Zugriff auf eine Tabelle mit 256 Einträgen |
 
-Diese Größen enthalten nur Tabellen, keinen Programmcode. Auf AVR liegen die
-Tabellen im Flash (`PROGMEM`). Einzelne Backends können unabhängig gewählt werden:
+Die Größe bezeichnet die **Anzahl der Einträge**, nicht die Anzahl der Bytes.
+Der reine Tabellenspeicher hängt zusätzlich von der CRC-Breite ab:
+
+| Aktiviertes Verfahren | CPU (`0`) | 16 Einträge | 256 Einträge |
+| --- | ---: | ---: | ---: |
+| CRC-8/SMBUS | 0 B | 16 B | 256 B |
+| CRC-8/SAE-J1850 | 0 B | 16 B | 256 B |
+| CRC-8/AUTOSAR | 0 B | 16 B | 256 B |
+| CRC-16/IBM-3740 | 0 B | 32 B | 512 B |
+| CRC-32/ISO-HDLC | 0 B | 64 B | 1024 B |
+| Summe ohne SMBUS | 0 B | 128 B | 2048 B |
+| Summe mit SMBUS | 0 B | 144 B | 2304 B |
+
+`B` steht für Bytes. Die Summen gelten, wenn alle genannten Verfahren denselben
+Tabellenmodus verwenden. Deaktivierte Verfahren benötigen keinen Tabellenspeicher.
+Bei gemischten Backends werden die jeweiligen Einzelwerte addiert.
+Die Angaben enthalten weder Programmcode noch den Zustand einer Instanz.
+Auf AVR liegen die Tabellen im Flash (`PROGMEM`).
+
+Einzelne Backends können unabhängig gewählt werden:
 
 ```ini
 build_flags =
@@ -198,7 +229,7 @@ Verfahren werden einschließlich ihrer Tabellen nicht eingebunden. Direkte
 statische Berechnungen dieser Klassen dürfen dann nicht aufgerufen werden;
 die Bridge liefert 0 beziehungsweise bei `start()` den Wert `false`.
 
-Für die vier bisherigen Verfahren dürfen die ebenfalls unterstützten `CRCx_ENABLED`-Defines dürfen den
+Für die vier bisherigen Verfahren dürfen die ebenfalls unterstützten `CRCx_ENABLED`-Defines den
 `CFG_CRCx_ENABLE`-Werten nicht widersprechen. Ungültige Werte führen zu einem
 Compilerfehler. Einstellungen müssen für alle Übersetzungseinheiten gelten;
 ein lokales `#define` im Anwendungscode konfiguriert die separat kompilierte
@@ -296,7 +327,7 @@ pio run -d examples/Direct
 pio run -d examples/Direct -e native -t exec
 pio run -d examples/Smbus
 pio run -d examples/Smbus -e native -t exec
-pio pkg pack -o CRCForge-1.1.0.tar.gz
+pio pkg pack -o CRCForge-1.1.1.tar.gz
 ```
 
 Native Builds benötigen GCC/G++ im PATH. Die Tests decken Referenzwerte,
